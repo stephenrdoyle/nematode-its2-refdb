@@ -16,7 +16,10 @@
 #
 # TRIM_ARGS passes options to bin/trim_primers.py (--pretrimmed for reads
 # deposited without primers); ONLY150=1 runs the 2x150 set alone, for
-# 2x150 data.
+# 2x150 data. PLATFORM=pacbio: work/testdata/<project>/ holds one
+# <sample>.fastq.gz per sample, demultiplexed by lima; single reads are
+# primer-trimmed (--platform pacbio), denoised as single reads, and the
+# one ASV table, <project>.pacbio, goes through the same arms.
 set -e
 P=$1; BUILD=$2; OUT=$3
 T=${THREADS:-8}
@@ -24,9 +27,6 @@ REFS=$OUT/refs
 mkdir -p $OUT $REFS
 [ -s $REFS/nemits2_dev.fasta ] || python3 -I bin/export_dada2.py $BUILD $REFS/nemits2_dev.fasta
 [ -s $REFS/nemabiome_20260317.fasta ] || cp work/test/refs/nemabiome_20260317.fasta $REFS/
-
-[ "${ONLY150:-0}" = 1 ] || [ -s $OUT/$P/250/trim_stats.tsv ] || python3 -I bin/trim_primers.py work/testdata/$P $OUT/$P/250 --workers $T $TRIM_ARGS
-[ -s $OUT/$P/150/trim_stats.tsv ] || python3 -I bin/trim_primers.py work/testdata/$P $OUT/$P/150 --length 150 --workers $T $TRIM_ARGS
 
 arms() {
   local X=$1
@@ -40,6 +40,17 @@ arms() {
   python3 -I bin/compare_arms.py $X > $X.compare.txt
   echo "done $X"
 }
+
+if [ "${PLATFORM:-illumina}" = pacbio ]; then
+  [ -s $OUT/$P/pacbio/trim_stats.tsv ] || python3 -I bin/trim_primers.py work/testdata/$P $OUT/$P/pacbio --platform pacbio --workers $T
+  [ -s $OUT/$P.pacbio.counts.tsv ] || THREADS=$T Rscript bin/dada2_nemabiome.R $OUT/$P/pacbio $OUT/$P.pacbio single \
+    $REFS/nemabiome_20260317.fasta $REFS/nemits2_dev.fasta
+  arms $OUT/$P.pacbio
+  exit 0
+fi
+
+[ "${ONLY150:-0}" = 1 ] || [ -s $OUT/$P/250/trim_stats.tsv ] || python3 -I bin/trim_primers.py work/testdata/$P $OUT/$P/250 --workers $T $TRIM_ARGS
+[ -s $OUT/$P/150/trim_stats.tsv ] || python3 -I bin/trim_primers.py work/testdata/$P $OUT/$P/150 --length 150 --workers $T $TRIM_ARGS
 
 [ -s $OUT/$P.150.counts.tsv ] || THREADS=$T Rscript bin/dada2_nemabiome.R $OUT/$P/150 $OUT/$P.150 concat \
   $REFS/nemabiome_20260317.fasta $REFS/nemits2_dev.fasta

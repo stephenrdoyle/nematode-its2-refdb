@@ -13,6 +13,12 @@
 #         for every pair (2x150 over a ~290-330 base amplicon, or 2x250
 #         without merging). The number that would have merged is reported.
 # hybrid: merged where the pair overlaps, concatenated where it does not.
+# single: full-length single reads (PacBio; bin/trim_primers.py --platform
+#         pacbio writes <sample>.fastq.gz, NC1-first). filterAndTrim(maxN = 0,
+#         maxEE = 2, minLen = 200, maxLen = 1000), learnErrors and dada with
+#         BAND_SIZE = 32; the error model is PacBioErrfun where qualities
+#         reach Q90 (HiFi), else the default (RSII CCS stop at Q42, where
+#         PacBioErrfun does not apply). Not combined with other modes.
 # With more than one mode, each writes <out prefix>.<mode>.*.
 #
 # filterAndTrim(maxN = 0, maxEE = c(2, 2), truncQ = 2, minLen = 50),
@@ -32,6 +38,55 @@ suppressMessages(library(dada2))
 dir <- args[1]; prefix <- args[2]; mode <- args[3]; refs <- args[-(1:3)]
 threads <- as.integer(Sys.getenv("THREADS", "6"))
 set.seed(1)
+
+write_tables <- function(nochim, pre, track) {
+  write.table(track, paste0(pre, ".track.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
+  asv <- colnames(nochim)
+  ids <- sprintf("ASV%05d", seq_along(asv))
+  write.table(data.frame(asv = ids, sequence = asv), paste0(pre, ".asvs.tsv"),
+              sep = "\t", quote = FALSE, row.names = FALSE)
+  cnt <- which(nochim > 0, arr.ind = TRUE)
+  write.table(data.frame(sample = rownames(nochim)[cnt[, 1]], asv = ids[cnt[, 2]], reads = nochim[cnt]),
+              paste0(pre, ".counts.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
+  for (ref in refs) {
+    tx <- assignTaxonomy(asv, ref, minBoot = 80, outputBootstraps = TRUE,
+                         tryRC = FALSE, multithread = threads, verbose = FALSE)
+    tab <- data.frame(asv = ids, tx$tax, boot = tx$boot, check.names = FALSE)
+    write.table(tab, paste0(pre, ".tax.", sub("\\.fasta$", "", basename(ref)), ".tsv"),
+                sep = "\t", quote = FALSE, row.names = FALSE)
+  }
+  length(asv)
+}
+
+if (mode == "single") {
+  f <- sort(list.files(dir, pattern = "\\.fastq\\.gz$", full.names = TRUE))
+  samples <- sub("\\.fastq\\.gz$", "", basename(f))
+  ff <- file.path(dir, "filtered", basename(f))
+  out <- filterAndTrim(f, ff, maxN = 0, maxEE = 2, minLen = 200, maxLen = 1000,
+                       compress = TRUE, multithread = threads)
+  keep <- out[, 2] > 0
+  ff <- ff[keep]; samples <- samples[keep]
+  # the highest quality score in the first 1,000 reads of the first files
+  qmax <- max(sapply(head(ff, 3), function(x) {
+    q <- readLines(gzfile(x), n = 4000)[c(FALSE, FALSE, FALSE, TRUE)]
+    max(utf8ToInt(paste(q, collapse = ""))) - 33
+  }))
+  hifi <- qmax >= 90
+  efun <- if (hifi) PacBioErrfun else loessErrfun
+  err <- learnErrors(ff, errorEstimationFunction = efun, BAND_SIZE = 32, multithread = threads, verbose = 0)
+  dd <- dada(ff, err = err, BAND_SIZE = 32, multithread = threads, verbose = 0)
+  if (length(ff) == 1) dd <- list(dd)
+  names(dd) <- samples
+  st <- makeSequenceTable(dd)
+  nochim <- removeBimeraDenovo(st, method = "consensus", multithread = threads, verbose = FALSE)
+  track <- data.frame(sample = samples, input = out[keep, 1], filtered = out[keep, 2],
+                      denoised = rowSums(st), nonchim = rowSums(nochim))
+  n <- write_tables(nochim, prefix, track)
+  cat(sprintf("%s: %d samples, %d ASVs, error model %s, %s reads in, %s non-chimeric\n", prefix,
+              length(samples), n, if (hifi) "PacBioErrfun (HiFi)" else "loess (qualities below Q90)",
+              format(sum(out[, 1]), big.mark = ","), format(sum(nochim), big.mark = ",")))
+  quit(save = "no")
+}
 
 f <- sort(list.files(dir, pattern = "_1\\.fastq\\.gz$", full.names = TRUE))
 r <- sub("_1\\.fastq\\.gz$", "_2.fastq.gz", f)
@@ -75,23 +130,9 @@ write_mode <- function(m) {
   track <- data.frame(sample = samples, input = out[keep, 1], filtered = out[keep, 2],
                       denoised = denoised, merged_overlap = n_merged,
                       used = rowSums(st), nonchim = rowSums(nochim))
-  write.table(track, paste0(pre, ".track.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
-  asv <- colnames(nochim)
-  ids <- sprintf("ASV%05d", seq_along(asv))
-  write.table(data.frame(asv = ids, sequence = asv), paste0(pre, ".asvs.tsv"),
-              sep = "\t", quote = FALSE, row.names = FALSE)
-  cnt <- which(nochim > 0, arr.ind = TRUE)
-  write.table(data.frame(sample = rownames(nochim)[cnt[, 1]], asv = ids[cnt[, 2]], reads = nochim[cnt]),
-              paste0(pre, ".counts.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
-  for (ref in refs) {
-    tx <- assignTaxonomy(asv, ref, minBoot = 80, outputBootstraps = TRUE,
-                         tryRC = FALSE, multithread = threads, verbose = FALSE)
-    tab <- data.frame(asv = ids, tx$tax, boot = tx$boot, check.names = FALSE)
-    write.table(tab, paste0(pre, ".tax.", sub("\\.fasta$", "", basename(ref)), ".tsv"),
-                sep = "\t", quote = FALSE, row.names = FALSE)
-  }
+  n <- write_tables(nochim, pre, track)
   cat(sprintf("%s: %d samples, %d ASVs, %s reads merged by overlap, %s reads used\n", pre,
-              length(samples), length(asv), format(sum(n_merged), big.mark = ","),
+              length(samples), n, format(sum(n_merged), big.mark = ","),
               format(sum(nochim), big.mark = ",")))
 }
 for (m in modes) write_mode(m)

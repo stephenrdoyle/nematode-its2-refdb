@@ -46,8 +46,21 @@ the two files swapped) is told by read 2's start, conserved 28S
 (ATCACGACTGAGCTCA, <= 3 mismatches). --length R
 counts the primers the reads would have carried (NC1, and NC2, its 7
 bases and the 20-base primer), so 2x150 is as for the other sets.
+
+--platform pacbio: single full-length reads (PacBio CCS / HiFi), one
+<sample>.fastq.gz per sample in <raw dir>, as lima writes them after
+demultiplexing (barcodes off, primers on). A read is turned round if NC1
+is not within its first 40 bases but is in its reverse complement, then
+cut after NC1 and before NC2 (reverse-complemented, within its last 40
+bases), both <= 3 edits - insertions and deletions included, the errors
+PacBio makes; either missing, it is dropped. The 28S
+stretch before NC2 stays: the classifier scores it free. Writes
+<sample>.fastq.gz, NC1-first.
 """
-import argparse, collections, glob, gzip, multiprocessing as mp, os
+import argparse, collections, glob, gzip, multiprocessing as mp, os, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from seqmatch import find_anchor_cost  # noqa: E402
 
 NC1 = "ACGTCTGGTTCAGGGTTGTT"
 NC2 = "TTAGTTTCTTTTCCTCCGCT"
@@ -155,6 +168,38 @@ def trim_run(job):
     return run, c
 
 
+PB_WIN = 40     # a primer is looked for this far from a single read's end
+
+
+def trim_single(job):
+    """--platform pacbio: one full-length read per molecule."""
+    raw, out = job
+    run = os.path.basename(raw).rsplit(".fastq.gz", 1)[0]
+    c = collections.Counter()
+    with gzip.open(raw, "rt") as a, \
+            gzip.open(os.path.join(out, f"{run}.fastq.gz"), "wt", compresslevel=4) as o:
+        for h, s, q in records(a):
+            c["reads"] += 1
+            m = find_anchor_cost(s[:PB_WIN + len(NC1)], NC1, 3)
+            if not m:
+                t = rc(s)
+                m = find_anchor_cost(t[:PB_WIN + len(NC1)], NC1, 3)
+                if m:
+                    s, q = t, q[::-1]
+                    c["turned"] += 1
+            if not m:
+                c["no NC1"] += 1
+                continue
+            lo = max(m[1], len(s) - len(NC2) - PB_WIN)
+            e = find_anchor_cost(s[lo:], rc(NC2), 3)
+            if not e:
+                c["no NC2"] += 1
+                continue
+            o.write(f"{h}{s[m[1]:lo + e[0]]}\n+\n{q[m[1]:lo + e[0]]}\n")
+            c["kept"] += 1
+    return run, c
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("raw")
@@ -163,16 +208,23 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=os.cpu_count())
     ap.add_argument("--pretrimmed", action="store_true")
     ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--platform", choices=("illumina", "pacbio"), default="illumina")
     # the defaults since 2026-11-13; accepted so older commands still run
     for flag in ("--swap", "--read-through", "--clipped"):
         ap.add_argument(flag, action="store_true", help=argparse.SUPPRESS)
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
-    jobs = [(f, a.out, a.length, a.pretrimmed) + (not a.strict,) * 3 for f in sorted(glob.glob(os.path.join(a.raw, "*_1.fastq.gz")))]
+    if a.platform == "pacbio":
+        func, cols = trim_single, ["reads", "kept", "turned", "no NC1", "no NC2"]
+        jobs = [(f, a.out) for f in sorted(glob.glob(os.path.join(a.raw, "*.fastq.gz")))]
+    else:
+        func = trim_run
+        cols = ["pairs", "kept", "read 2 at NC2", "read 2 in 28S", "no NC1", "no NC2 or 28S",
+                "swapped", "pre-trimmed", "read-through cut"]
+        jobs = [(f, a.out, a.length, a.pretrimmed) + (not a.strict,) * 3
+                for f in sorted(glob.glob(os.path.join(a.raw, "*_1.fastq.gz")))]
     with mp.get_context("fork").Pool(a.workers) as pool:
-        res = sorted(pool.imap_unordered(trim_run, jobs))
-    cols = ["pairs", "kept", "read 2 at NC2", "read 2 in 28S", "no NC1", "no NC2 or 28S",
-            "swapped", "pre-trimmed", "read-through cut"]
+        res = sorted(pool.imap_unordered(func, jobs))
     tot = collections.Counter()
     with open(os.path.join(a.out, "trim_stats.tsv"), "w") as fh:
         fh.write("run\t" + "\t".join(c.replace(" ", "_") for c in cols) + "\n")
@@ -180,7 +232,7 @@ def main() -> int:
             tot.update(c)
             fh.write(run + "\t" + "\t".join(str(c[x]) for x in cols) + "\n")
     print(f"{a.raw} -> {a.out}: {len(res)} runs; " + ", ".join(
-        f"{x} {tot[x]:,}" + (f" ({100 * tot[x] / tot['pairs']:.1f}%)" if x != "pairs" else "") for x in cols))
+        f"{x} {tot[x]:,}" + (f" ({100 * tot[x] / tot[cols[0]]:.1f}%)" if x != cols[0] else "") for x in cols))
     return 0
 
 
