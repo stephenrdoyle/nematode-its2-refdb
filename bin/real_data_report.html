@@ -83,7 +83,7 @@ footer { color: var(--muted); font-size: 0.8rem }
 
   <section>
     <h2>Reads through the pipeline</h2>
-    <p class="sub">Read pairs after primer trimming, then what each DADA2 option keeps after chimera removal. Every 2x250 option is denoised once; they differ only in how a pair is joined.</p>
+    <p class="sub" id="pipeline-sub">Read pairs after primer trimming, then what each DADA2 option keeps after chimera removal. Every 2x250 option is denoised once; they differ only in how a pair is joined.</p>
     <div class="panel scroll"><table id="pipeline"></table></div>
   </section>
 
@@ -142,9 +142,12 @@ $("#lede").textContent = `${D.samples.length} samples: ` + Object.entries(hosts)
 (function () {
   const pairs = D.samples.reduce((a, s) => a + s.pairs, 0), kept = D.samples.reduce((a, s) => a + s.kept, 0);
   const in28 = D.samples.reduce((a, s) => a + s.in28s, 0);
-  let h = `<tr><th class="l">Step</th><th>ASVs</th><th>Reads</th><th>Of raw pairs</th></tr>
-    <tr><td>Raw read pairs</td><td></td><td>${fmt(pairs)}</td><td>100%</td></tr>
-    <tr><td>After primer trimming <span class="pill">${p1(pct(in28, kept))} read 2 in 28S</span></td><td></td><td>${fmt(kept)}</td><td>${p1(pct(kept, pairs))}</td></tr>`;
+  const pb = D.platform === "pacbio", unit = pb ? "reads" : "pairs";
+  if (pb) $("#pipeline-sub").textContent = "Full-length reads after primer trimming (each read turned to start at NC1), then what DADA2 keeps after chimera removal. Single reads: no joining.";
+  const pill = pb ? `${p1(pct(D.samples.reduce((a, s) => a + s.turned, 0), kept))} turned` : `${p1(pct(in28, kept))} read 2 in 28S`;
+  let h = `<tr><th class="l">Step</th><th>ASVs</th><th>Reads</th><th>Of raw ${unit}</th></tr>
+    <tr><td>Raw read ${unit}</td><td></td><td>${fmt(pairs)}</td><td>100%</td></tr>
+    <tr><td>After primer trimming <span class="pill">${pill}</span></td><td></td><td>${fmt(kept)}</td><td>${p1(pct(kept, pairs))}</td></tr>`;
   const best = Math.max(...D.sets.filter(s => s.id.startsWith("250")).map(s => tot(s)));
   D.sets.forEach(s => {
     const n = tot(s);
@@ -153,6 +156,24 @@ $("#lede").textContent = `${D.samples.length} samples: ` + Object.entries(hosts)
   $("#pipeline").innerHTML = h;
   function tot(s) { return Object.values(s.track).reduce((a, t) => a + t.nonchim, 0) }
 })();
+
+/* per-sample table for full-length single reads (no joining options) */
+function pacbioSamples(set, per) {
+  $("#samples-sub").textContent = "Trimming and reads kept, with the species share and top call for the classifier chosen above.";
+  let h = `<tr><th class="l">Sample</th><th class="l">Group</th><th>Raw reads</th><th>Trimmed</th><th>Turned</th>
+    <th>Kept</th><th>Chimeras</th><th>Species, ${esc(set.label)}</th><th class="l">Top call</th></tr>`;
+  D.samples.forEach(s => {
+    const rows = per[s.run] || [], t = rows.reduce((a, q) => a + q[3], 0);
+    const sp = rows.filter(q => q[0] === "species").reduce((a, q) => a + q[3], 0);
+    const tr = set.track[s.run], chim = tr ? pct(tr.used - tr.nonchim, tr.used) : null, top = rows[0];
+    h += `<tr><td class="mono">${esc(s.alias)}</td><td class="l">${esc(s.host)}</td>
+      <td>${fmt(s.pairs)}</td><td>${p1(pct(s.kept, s.pairs))}</td><td>${p1(pct(s.turned, s.kept))}</td>
+      <td>${tr ? fmt(tr.nonchim) : "–"}</td><td>${chim == null ? "–" : p1(chim)}</td>
+      <td>${t ? p1(pct(sp, t)) + `<span class="minibar" style="width:${(40 * sp / t).toFixed(1)}px;background:var(--lv-species)"></span>` : "–"}</td>
+      <td class="l">${top ? (top[0] === "species" ? `<em>${esc(top[2])}</em>` : esc(top[2])) + ` <span style="color:var(--muted)">${p1(pct(top[3], t))}</span>` : "–"}</td></tr>`;
+  });
+  $("#samples").innerHTML = h;
+}
 
 /* depth small multiples */
 const LV = ["species", "genus", "higher", "unassigned", "none"];
@@ -300,6 +321,7 @@ function drawSamples() {
   }
   sub.textContent = sub.dataset.lib;
   const set = D.sets.find(s => s.id === setSel.value), per = set.arms[armSel.value] || {};
+  if (D.platform === "pacbio") { pacbioSamples(set, per); return; }
   const g = id => D.sets.find(s => s.id === id);
   const m = g("250.merge"), c = g("250.concat"), hy = g("250.hybrid");
   const nc = (st, r) => st && st.track[r] ? st.track[r].nonchim : null;

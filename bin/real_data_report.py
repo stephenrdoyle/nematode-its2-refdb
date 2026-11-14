@@ -16,6 +16,9 @@ is shown as "not ITS2-like", apart from unassigned ("unplaced ITS2"), when a
 classifier leaves it above genus. One self-contained page: trimming, the 2x250 merge
 options against 2x150, the share of reads each classifier names to
 species, genus or above, per-sample composition, and a per-sample table.
+A PacBio project (bin/real_data.sh PLATFORM=pacbio: <out dir>/<project>/pacbio/
+and the set <project>.pacbio) gets the same page for single full-length
+reads: reads, not pairs, and no joining options.
 [notes.html] is a fragment placed under the title (the findings).
 """
 import csv, collections, glob, html, json, os, re, sys
@@ -24,7 +27,8 @@ OUT, P, TITLE, DEST = sys.argv[1:5]
 NOTES = open(sys.argv[5]).read() if len(sys.argv) > 5 else ""
 RANKS = ['superkingdom', 'kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']
 SETS = [("150", "2x150, concatenated"), ("250.merge", "2x250, merged"),
-        ("250.concat", "2x250, concatenated"), ("250.hybrid", "2x250, hybrid")]
+        ("250.concat", "2x250, concatenated"), ("250.hybrid", "2x250, hybrid"),
+        ("pacbio", "PacBio, full-length single reads")]
 ARMS = [("ours.nemits2_dev", "gap", "Gap rule, this database"),
         ("ours.nemits2_dev", "tiered", "Tiered rule (gap + tentative), this database"),
         ("idtaxa.nemits2_dev.trim28s", None, "IdTaxa, this database, 28S cut"),
@@ -89,12 +93,14 @@ else:
     host = {k: re.search(r"(cattle|sheep|goat|pig|kangaroo|rabbit)", r["experiment_title"]).group(1)
             for k, r in runs.items()}
 alias = {k: r["library_name"] or r["sample_alias"] for k, r in runs.items()}
-trim_dir = f"{OUT}/{P}/250" if os.path.exists(f"{OUT}/{P}/250/trim_stats.tsv") else f"{OUT}/{P}/150"
+trim_dir = next(f"{OUT}/{P}/{d}" for d in ("250", "150", "pacbio")
+                if os.path.exists(f"{OUT}/{P}/{d}/trim_stats.tsv"))
+platform = "pacbio" if trim_dir.endswith("pacbio") else "illumina"
 trim = {r["run"]: r for r in tsv(f"{trim_dir}/trim_stats.tsv")}
 rep_f = f"work/testdata/{P}.replicates.tsv"
 group = {r["run_accession"]: r["sample"] for r in tsv(rep_f)} if os.path.exists(rep_f) else {}
 
-data = dict(project=P, title=TITLE, sets=[], arms=[a[2] for a in ARMS], samples=[])
+data = dict(project=P, title=TITLE, platform=platform, sets=[], arms=[a[2] for a in ARMS], samples=[])
 for sid, slab in SETS:
     pre = f"{OUT}/{P}.{sid}"
     if not os.path.exists(pre + ".counts.tsv"):
@@ -104,7 +110,9 @@ for sid, slab in SETS:
         counts[r["sample"]][r["asv"]] += int(r["reads"])
     track = {r["sample"]: r for r in tsv(pre + ".track.tsv")}
     s = dict(id=sid, label=slab, asvs=len({a for c in counts.values() for a in c}),
-             track={k: {c: int(v[c]) for c in ("input", "used", "nonchim")} for k, v in track.items()},
+             # single reads (pacbio) have no joining step: denoised reads are the ones used
+             track={k: {"input": int(v["input"]), "used": int(v.get("used", v.get("denoised"))),
+                        "nonchim": int(v["nonchim"])} for k, v in track.items()},
              arms={}, by_sample={})
     stray = {r["asv"] for r in tsv(f"{pre}.ours.nemits2_dev.tsv")
              if r["gap_rank"] == "unassigned" and not r["nearest"]} \
@@ -138,9 +146,13 @@ for sid, slab in SETS:
 samples = sorted(trim, key=lambda k: (host[k], alias[k]))
 for k in samples:
     t = trim[k]
-    data["samples"].append(dict(run=k, alias=alias[k], host=host[k], pairs=int(t["pairs"]),
-                                kept=int(t["kept"]), nc2=int(t["read_2_at_NC2"]),
-                                in28s=int(t["read_2_in_28S"])))
+    if platform == "pacbio":       # reads, kept, turned, no NC1, no NC2
+        data["samples"].append(dict(run=k, alias=alias[k], host=host[k], pairs=int(t["reads"]),
+                                    kept=int(t["kept"]), turned=int(t["turned"])))
+    else:
+        data["samples"].append(dict(run=k, alias=alias[k], host=host[k], pairs=int(t["pairs"]),
+                                    kept=int(t["kept"]), nc2=int(t["read_2_at_NC2"]),
+                                    in28s=int(t["read_2_in_28S"])))
 
 if group:
     data["groups"] = [dict(id=g, host=host[ls[0]], runs=ls) for g, ls in sorted(
