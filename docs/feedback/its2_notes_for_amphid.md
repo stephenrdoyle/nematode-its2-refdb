@@ -1,8 +1,8 @@
 # Notes for amphid: using the nematode ITS2 database
 
 From nematode-its2-refdb (named nemabiome-its2-refdb until v0.1.4)
-v0.1.1 (2026-11-10); updated for v0.2.0 (2026-11-14, "What changed in
-v0.2.0" below). The database follows
+v0.1.1 (2026-11-10); updated for v0.2.1 (2026-11-14, "What changed in
+v0.2.1" below). The database follows
 vespa-18s-refdb's release format. These are the places where ITS2 needs
 something V4 did not.
 
@@ -12,6 +12,17 @@ which maps each point below to the amphid code it changes. The issue
 also covers two points not here: `taxonomy.tsv` has NCBI's eight ranks,
 not the PR2 levels amphid hard-codes, and amphid's identity charges a
 read's unaligned ends - for ITS2, the 28S stretch - as differences.
+
+## What changed in v0.2.1
+
+**One file added, nothing else in the format:**
+`resolution_illumina_300x300.tsv` for MiSeq v3 2x300 (windows 280 +
+233), its `illumina_geometries` entry in `manifest.json`, and a
+`margin_280x233` column in `species_margins.tsv`. **One curation
+change:** *Spiculopteragia boehmi* relabelled *S. spiculoptera* (one
+species under two names), 1,872 named species. **The recipe gained**
+the one joining rule at every read length (§3), PacBio (§3a), and a
+scoring rule for a concatenated read 1 that reaches 28S (§5).
 
 ## What changed in v0.2.0
 
@@ -113,7 +124,8 @@ Each acts only on a pair that needs it. Reference: `bin/trim_primers.py`
 
 2x150, primers trimmed: forward read = first 130 bases of the ITS2;
 reverse read = last 130 bases of the amplicon, of which ~47 are 28S, so
-the last 83 of the ITS2. 2x250: 230 + 183. With a median ITS2 of 240
+the last 83 of the ITS2. 2x250: 230 + 183; 2x300: 280 + 233 (since
+v0.2.1). With a median ITS2 of 240
 bases, most 2x250 pairs and many 2x150 pairs overlap and merge.
 `manifest.json` → `illumina_geometries` gives the windows.
 
@@ -205,8 +217,8 @@ the 11,197 species-level records in v0.2.0, 290 are tied with another
 species, 723 are one edit away and 549 two (`species_margins.tsv`, read
 whole).
 
-A leave-one-out test (DESIGN §6.1; 3,226 queries, 1,232 species, on
-v0.2.0) shows identity alone is the wrong
+A leave-one-out test (DESIGN §6.1; 3,225 queries, 1,231 species, on
+v0.2.1) shows identity alone is the wrong
 measure. Under the V4 limits only 19.3% of reads whose species is in
 the database are named to species. What separates a right call from a
 wrong one is the margin to the next species. Recommended rule:
@@ -231,13 +243,14 @@ species is missing from the database.
 
 | Rule (whole reads) | Species recall | Species precision | Genus recall | Genus precision | Over-classification |
 |---|---:|---:|---:|---:|---:|
-| V4 limits | 19.3% | 94.7% | 51.8% | 99.3% | 1.9% |
-| gap rule | 57.7% | 99.3% | 89.8% | 99.4% | 5.4% |
-| tiered: gap rule + tentative species at >= 98% | 68.7% | 99.0% | 89.8% | 99.4% | 9.1% |
-| dada2 assignTaxonomy, for scale | 86.3% | 95.5% | 97.8% | 99.4% | 40.5% |
-| DECIPHER IdTaxa, for scale | 79.6% | 97.6% | 94.2% | 99.6% | 20.2% |
+| V4 limits | 19.3% | 94.7% | 51.8% | 99.3% | 1.8% |
+| gap rule | 57.9% | 99.3% | 89.8% | 99.4% | 5.5% |
+| tiered: gap rule + tentative species at >= 98% | 68.9% | 99.0% | 89.8% | 99.4% | 9.1% |
+| dada2 assignTaxonomy, for scale | 86.5% | 95.6% | 97.6% | 99.3% | 39.3% |
+| DECIPHER IdTaxa, for scale | 79.6% | 97.4% | 94.2% | 99.5% | 19.7% |
 
-(v0.2.0; v0.1.4 gave 57.3%, 99.2% and 5.5% for the gap rule, before
+(v0.2.1; v0.2.0 gave 57.7%, 99.3% and 5.4% for the gap rule, v0.1.4
+57.3%, 99.2% and 5.5%, before
 repeat-aware scoring 56.4%, 99.2% and 5.4%, and v0.1.3 55.3%, 98.8% and
 5.9%. With informal records, reads of a missing species whose genus is in the
 database reach the right genus 30.7% of the time, from 26.2% in v0.1.4,
