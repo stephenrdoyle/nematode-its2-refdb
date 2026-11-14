@@ -86,7 +86,7 @@ its reference covers, so a partial reference is scored on fewer bases -
 the grade says how many fewer.
 
 WINDOWS. Read lengths are set per build (--read-lengths, default
-150,250), one resolution table each. NC1 and NC2 are 20 bases. A 2xR read pair, primers trimmed,
+150,250,300: MiSeq v2 2x150 and 2x250, v3 2x300), one resolution table each. NC1 and NC2 are 20 bases. A 2xR read pair, primers trimmed,
 sees the first R-20 bases of the ITS2 and the last R-20 bases of the
 amplicon - of which ~47 are the 28S stretch the references leave out, so
 R-67 of the ITS2. Records that short or shorter are seen whole.
@@ -117,7 +117,7 @@ CONFLICT_RANKS = RANKS[:RANKS.index("order") + 1]
 GRADES = ["complete", "near_complete", "partial_90", "partial_75", "partial", "unmeasured"]
 PRIMER_LEN = 20
 STRETCH_28S = 47
-READ_LENGTHS = [150, 250]   # default; set per build with --read-lengths
+READ_LENGTHS = [150, 250, 300]   # default; set per build with --read-lengths
 
 NOT_A_SPECIES = re.compile(r" x | (cf|aff)\.? | spp?\. |sensu lato| s\.l\.|environmental sample")
 GENUS_SP = re.compile(r"^\S+ spp?\. ")
