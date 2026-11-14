@@ -10,7 +10,10 @@ the same ASVs, scored as bin/its2_classify.py scores reads.
     whole, each reference placed inside it with the ASV's extra bases free;
   - a concatenated ASV (forward + 10 N + reverse, from 2x150 pairs that do
     not overlap) is split into its two windows, scored against the start
-    and the end of each reference;
+    and the end of each reference; but where the forward read already
+    reaches the 28S stretch (bin/trim_28s.py's anchor), it spans the whole
+    ITS2 - a pair that overlaps and failed to merge, as at 2x300 - and is
+    scored whole on its own: as a window, its 28S bases would be charged;
   - an ASV whose best minimap2 hit is on the reverse strand (a library
     sequenced in mixed orientation) is turned round first.
 
@@ -45,6 +48,7 @@ from build import RANKS, merge, read_fasta  # noqa: E402
 from its2_classify import (RULES, _init, call, describe, informal_records, lineage,  # noqa: E402
                            load_taxonomy, minimap_candidates, score_named_first)
 from seqmatch import revcomp  # noqa: E402
+from trim_28s import trim as trim_28s  # noqa: E402
 
 SEP = "N" * 10
 
@@ -103,7 +107,10 @@ def main() -> int:
             s = revcomp(s)
         if SEP in s:
             x, _, y = s.partition(SEP)
-            jobs.append((i, "window", x, y.strip("N"), c))
+            if trim_28s(x)[1]:          # read 1 spans the ITS2 into 28S
+                jobs.append((i, "whole", x, "", c))
+            else:
+                jobs.append((i, "window", x, y.strip("N"), c))
         else:
             jobs.append((i, "whole", s, "", c))
     loose = informal_records(a.reference) if os.path.isdir(a.reference) else set()
