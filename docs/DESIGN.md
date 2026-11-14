@@ -1101,6 +1101,40 @@ over-classification matters more than its lower recall, and tentative
 calls are best read as genus. amphid should
 follow the gap rule (feedback note §5) and report `nearest` and `next`.
 
+**Joining by read length (2026-11-14).** One rule, hybrid, at every
+read length. 2x150 (the four Illumina sets, reads cut to 150): merging
+alone kept 0.4-11% of reads and hybrid named exactly what concatenation
+did (Francis & Šlapeta 98.5%, PRJNA1524548 98.3%, zoo 69.7%, Cameroon
+59.9% tiered), matching the 2x250 composition equally (median per-sample
+difference 0.9-1.7%). 2x300 (MiSeq v3; German cattle PRJNA1261435 and
+camels PRJNA1261439, Ehnert et al. 2025 and Brachmann et al. 2025; roe
+deer PRJNA857182, Beaumelle et al. 2022; the German sheep set PRJNA1105379
+has every quality score set to Q30 and DADA2 cannot learn errors on it):
+read-through is common (32% of pairs cut), merging alone keeps 2-8% fewer
+reads than hybrid, and both name the same share to species once a
+concatenated pair whose read 1 reaches 28S is scored whole on read 1
+(before, those pairs were charged for their 28S bases and fell to
+"unplaced": camels 96.6% against 99.6%). The published communities are
+reproduced: cattle species per farm and the most abundant species on
+each farm exactly; camels prevalence before and after treatment within a
+farm per species; roe deer per-sample shares within a point of the
+study's own IdTaxa table, once *Spiculopteragia boehmi* is relabelled
+*S. spiculoptera* (one species under two names; `curation/overrides.tsv`).
+
+**PacBio (2026-11-14).** Halvarsson & Höglund's Swedish sheep (BioStudies
+S-BSST527; RSII circular consensus reads, 158 larval cultures):
+demultiplexed by their symmetric tags (only the library's own tags: the
+SMRT cells were shared, and half the reads carry other projects' tags),
+primer-trimmed as single reads (`bin/trim_primers.py --platform pacbio`,
+primers matched by edit distance), DADA2 single-read (`single` mode; the
+default error model, as RSII qualities stop at Q42), each ASV scored
+whole. 99.3% of reads to species (tiered and gap alike); *H. contortus*
+64.6% against the paper's 64.8%, the other dominant species within a
+point; the paper's single "*T. vitrinus*" OTU (6.5%) resolves into
+*T. vitrinus*, *T. axei* and *T. colubriformis*, each an exact match 4-6
+edits clear of the next. Not tested: Sequel/Revio HiFi reads (where
+`PacBioErrfun` applies) and a PacBio mock.
+
 ### 6.3 Simulated mocks
 
 The simulated nemabiome mocks of Jesudoss Chelladurai et al. (2025,

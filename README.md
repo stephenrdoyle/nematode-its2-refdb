@@ -137,6 +137,25 @@ trims), and takes reads deposited without primers (`--pretrimmed`).
 family within range) apart from "Not ITS2-like" (nothing aligns:
 primer dimers, chimeras, off-target), and can count by sample.
 
+## Since v0.2.0 (on `main`, not yet released)
+
+- **Joining and read lengths.** Hybrid joining (merged where a pair
+  overlaps, concatenated where not) is the rule at every read length:
+  tested at 2x150 (four sets: same calls as concatenation) and 2x300
+  (German cattle and camels, Ehnert et al. 2025 and Brachmann et al.
+  2025; roe deer, Beaumelle et al. 2022: 2-8% more reads than merging,
+  same species shares, and the published communities reproduced).
+- **`bin/classify_asvs.py`:** a concatenated pair whose read 1 already
+  reaches 28S is scored whole on read 1 (at 2x300, camels 96.6% ->
+  99.6% of reads to species with hybrid joining).
+- **PacBio:** `bin/trim_primers.py --platform pacbio`, a `single` mode
+  in `bin/dada2_nemabiome.R` and `PLATFORM=pacbio` in
+  `bin/real_data.sh`; demultiplex with `lima`. Swedish sheep
+  (S-BSST527): 99.3% of reads to species.
+- **Curation:** *Spiculopteragia boehmi* relabelled *S. spiculoptera*
+  (one species under two names); roe deer *S. spiculoptera* reads now
+  reach species.
+
 ## Earlier releases
 
 
@@ -389,7 +408,7 @@ ASVs end in it. assignTaxonomy and IdTaxa compare k-mers over the whole
 ASV, so uncut ASVs lose most species calls (one livestock set: 45% of
 reads to species uncut, 99.3% cut).
 
-At 2x250, join pairs hybrid rather than by merging alone. `mergePairs`
+Join pairs hybrid rather than by merging alone, at every read length. `mergePairs`
 needs 12 bases of overlap; after primer trimming (about 230 + 230
 bases) an ITS2 over about 400 bases never merges, and those pairs are
 silently dropped: *Metastrongylus* (413-422 bases), Trichuridae,
@@ -409,9 +428,13 @@ seqtab <- makeSequenceTable(hybrid)
 
 (for one sample, `mm` and `cc` are data frames rather than lists: wrap
 them in `list()`; `bin/dada2_nemabiome.R` does this as its `hybrid`
-mode). Concatenating every pair instead suits the k-mer classifiers but
-costs the gap rule species calls where read 1 runs through a short ITS2
-into 28S. After `removeBimeraDenovo`:
+mode). At 2x150 almost no strongylid pair overlaps and hybrid is
+concatenation; at 2x300 nearly every pair merges and hybrid keeps the
+2-8% that fail on mismatches; tested on four 2x150 and three 2x300 sets
+(docs/DESIGN.md §6.2). PacBio reads are single and whole: demultiplex
+with `lima`, then `bin/trim_primers.py --platform pacbio` and
+`bin/dada2_nemabiome.R` mode `single` (`bin/real_data.sh` with
+`PLATFORM=pacbio`). After `removeBimeraDenovo`:
 
 ```r
 source("trim_28s.R")

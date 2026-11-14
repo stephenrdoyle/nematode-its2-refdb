@@ -117,7 +117,7 @@ the last 83 of the ITS2. 2x250: 230 + 183. With a median ITS2 of 240
 bases, most 2x250 pairs and many 2x150 pairs overlap and merge.
 `manifest.json` → `illumina_geometries` gives the windows.
 
-**Join 2x250 pairs hybrid**: merged where the pair overlaps,
+**Join pairs hybrid, at every read length**: merged where the pair overlaps,
 concatenated (forward + reverse, as for unmerged pairs) where it does
 not. Merging alone silently drops every pair whose ITS2 is too long to
 overlap: `mergePairs` needs 12 bases, and after primer trimming (about
@@ -134,13 +134,58 @@ and concatenated ASVs side by side, and each is scored as it is: a
 merged ASV whole, a concatenated one as two windows (§5). The README's
 "For DADA2 and IdTaxa users" section has the dada2 code.
 
-At 2x150 concatenate every pair: that is what we have tested; hybrid
-there is untested. Nanopore reads are scored whole.
+The same rule holds at every read length; only how many pairs merge
+changes. At 2x150 almost no strongylid pair overlaps (trimmed reads
+cover 130 + 130 bases of a ~270-330 base amplicon), so hybrid is
+concatenation: on four sets, merging alone kept 0.4-11% of reads,
+hybrid and concatenation named the same species (Francis & Šlapeta
+98.5%, PRJNA1524548 98.3% tiered) and matched the 2x250 composition
+equally (median per-sample difference 0.9-1.7%); the few pairs that do
+merge at 2x150 are mostly primer dimers. At 2x300 (MiSeq v3) nearly
+every pair overlaps, and hybrid keeps the 2-8% that fail to merge on
+mismatches in the poorer read ends: German cattle 144,023 reads hybrid
+against 141,213 merged, camels 543,334 against 525,517, roe deer
+279,813 against 258,518, with the same species shares (99.1 / 99.3%,
+99.6 / 99.9%, 87.4 / 87.3%).
+
+Use DADA2's `mergePairs` with its defaults, after denoising each read:
+it joins the two denoised sequences only where they agree over the
+overlap, and the error correction is the denoising. Mergers that join
+raw reads before denoising (PEAR, FLASH, VSEARCH) are not part of the
+recipe. Nanopore and PacBio reads are single and scored whole (§3a).
 
 DADA2's chimera check cannot see a chimera whose join falls in the gap
 between the two reads of a concatenated pair. Most of the zoo set's
 unplaced ITS2 (0.21% of reads) is such chimeras: read 1 *Haemonchus* or
 *Teladorsagia*, read 2 *T. axei*.
+
+## 3a. PacBio
+
+Full-length reads (circular consensus / HiFi) are single reads of the
+whole amplicon, so there is no joining and no window: each ASV is scored
+whole, as a merged pair or a nanopore read. A run is declared as PacBio
+up front, and that selects the settings:
+
+1. **Demultiplex with `lima`** (symmetric tags, `--hifi-preset
+   SYMMETRIC`), giving it only the tags of the library being read:
+   SMRT cells are shared, and other projects' reads carry other tags of
+   the same set (in S-BSST527, half the reads).
+2. **Primer-trim single reads** (`bin/trim_primers.py --platform
+   pacbio`): orient each read NC1-first, cut after NC1 and before NC2,
+   matching primers by edit distance (PacBio errors are mostly
+   insertions and deletions in homopolymers; a mismatch-only match lost
+   12% of reads), keep the 28S stretch.
+3. **DADA2 on single reads** (`bin/dada2_nemabiome.R` mode `single`):
+   `filterAndTrim(maxN = 0, maxEE = 2, minLen = 200, maxLen = 1000)`,
+   `BAND_SIZE = 32`; the error model is `PacBioErrfun` for HiFi
+   (qualities to Q93), the default for older RSII reads (to Q42).
+4. **Classify** as everything else (§5).
+
+Tested on Halvarsson & Höglund's Swedish sheep (S-BSST527, RSII, 158
+larval cultures): 99.3% of reads to species, the dominant species'
+shares within a point of the paper's, and their single "*T. vitrinus*"
+resolved into *T. vitrinus*, *T. axei* and *T. colubriformis* (each an
+exact match, 4-6 edits clear of the next).
 
 ## 4. Grade
 
@@ -250,10 +295,12 @@ before the reference's start (primer offset, up to 30). Cut the second
 window at the 28S anchor, not at a fixed 47 bases. Giving a reference's
 first bases slack let one partial *H. bedfordi* record tie *H. placei*
 reads in the reference scorer (DESIGN §6.2); amphid already charges
-them. A gap in our own scorer: where a pair overlaps but was
-concatenated (it failed to merge), read 1 can run past the ITS2 into
-28S, and that overrun is charged; cutting read 1's window at the anchor
-too would fix it (0.5% of Cameroon 2x250 reads, under 0.05% elsewhere).
+them. **A concatenated pair whose read 1 already reaches the 28S
+anchor** (a pair that overlaps but failed to merge, common at 2x300)
+spans the whole ITS2: score read 1 whole, not as a window, or its 28S
+bases are charged as differences. Without this, 2x300 hybrid lost real
+species to "unplaced" (camels 99.6% -> 96.6% to species);
+`bin/classify_asvs.py` does it since 2026-11-14.
 
 **Score simple repeats by copy number.** A difference in how many units
 a simple repeat has (a homopolymer of >= 4 bases, >= 3 copies of a 2-3
