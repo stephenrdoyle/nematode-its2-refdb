@@ -57,6 +57,22 @@ record anchored at both ends: `complete`, `near_complete` (>= 98%),
   Before, only `curation/overrides.tsv` recorded it. `manifest.json`
   counts them (`counts.relabelled`: 45 on v0.2.2's inputs); every other
   file is unchanged.
+- **Curation: the five contained pairs that crossed a genus**
+  (`curation/overrides.tsv`). Synonyms relabelled: *Paratylenchus
+  paralatescens* (OR354384) as *Gracilacus paralatescens*, as its
+  other three records; *Oscheius microvilli* (NCBI: *Caenorhabditis
+  microvilli*; KT825914, MN932153, OM004005) as *O. myriophilus*, a
+  proposed junior synonym whose ITS2 it shares. Misidentified records
+  dropped, not relabelled, so no accession carries a name GenBank does
+  not: six *Pseudoterranova decipiens* larvae from cod and redfish
+  (MG272333-7, KT852550) with the *Phocanema bulbosa* ITS2, and the only
+  *Rugopharynx alpha* (LN906946), which is *Papillostrongylus barbatus*'s.
+  *Aphelenchoides oryzae* inside *A. besseyi* stays: a valid species of
+  the *A. besseyi* complex whose ITS2 overlaps it. On v0.2.2's inputs:
+  12,048 records (12,053), 1,869 named species (1,872); 146 contained
+  pairs, none across a genus (151, 5); 9 records named to species read
+  whole and through every window that stopped at family; five
+  `closer` records in the coherence screen gone, none new.
 
 ## v0.2.2
 
