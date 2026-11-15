@@ -47,6 +47,11 @@ record anchored at both ends: `complete`, `near_complete` (>= 98%),
 `partial_90`, `partial_75`, `partial`, or `unmeasured` (no relative at
 >= 80% identity).
 
+## Unreleased
+
+Curation of the within-genus contained pairs (`docs/curation_contained_pairs_2026-11.md`):
+- *Globodera achilleae* (AY599498) relabelled *G. millefolii*, its senior synonym (Subbotin et al. 2011); identical to *G. millefolii* from the type host and region.
+
 ## v0.2.3
 
 12,048 records and 1,869 named species (425 genera), from the same
