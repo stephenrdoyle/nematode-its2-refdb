@@ -1,8 +1,8 @@
 # Notes for amphid: using the nematode ITS2 database
 
 From nematode-its2-refdb (named nemabiome-its2-refdb until v0.1.4)
-v0.1.1 (2026-11-10); updated for v0.2.3 (2026-11-15, "What changed in
-v0.2.3" below). The database follows
+v0.1.1 (2026-11-10); updated for v0.2.4 (2026-11-15, "What changed in
+v0.2.4" below). The database follows
 vespa-18s-refdb's release format. These are the places where ITS2 needs
 something V4 did not.
 
@@ -12,6 +12,18 @@ which maps each point below to the amphid code it changes. The issue
 also covers two points not here: `taxonomy.tsv` has NCBI's eight ranks,
 not the PR2 levels amphid hard-codes, and amphid's identity charges a
 read's unaligned ends - for ITS2, the 28S stretch - as differences.
+
+## What changed in v0.2.4
+
+**The format did not change.** **Curation** of the contained pairs
+within a genus: synonyms relabelled to their senior names (*Globodera
+achilleae* -> *G. millefolii*; *Heterorhabditis sonorensis* -> *H.
+taysearae*, 14 accessions; *Hoplolaimus stephanus* -> *H. galeatus*, 33
+accessions), and three misidentified records dropped (*Ditylenchus
+dipsaci* MG384729, *Hysterothylacium amoyense* MW370925, *H. fabri*
+MW370927). 12,044 records, 1,866 named species; 131 contained pairs
+(146); 17 more records reach species read whole. Leave-one-out, gap
+rule read whole: 58.6% / 99.4% / 4.9% (v0.2.3: 58.2% / 99.3% / 5.2%).
 
 ## What changed in v0.2.3
 

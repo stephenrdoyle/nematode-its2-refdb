@@ -1,0 +1,79 @@
+nemits2_v0.2.4  built 2026-11-15T15:44:02Z  code 6c086b225a093b491957498c6d1c98fdbac2e57c
+primers NC1 ACGTCTGGTTCAGGGTTGTT / NC2 TTAGTTTCTTTTCCTCCGCT
+source nemabiome_20260317
+records 12,044 from 18,023 source records; named species 1,866
+members: dropped 894, kept 17,129; partial records folded into a same-species full-length record: 1,209; weak records folded into a same-species record within 1 edit: 808; renamed to current NCBI names: 64; relabelled in curation/overrides.tsv: 97; update records left out, cut at no anchor: 3,224; informal-name (Genus sp.) records 737, source records left out as identical to a named record 760
+conflicts (order or above): none
+contained in another species' record (named, exactly over the shorter's span): 131 record pairs, 46 species pairs, 156 records; 47 pairs involve a partial or unmeasured record, 0 cross a genus
+lineages (records): Cloacina: Cloacina sp. 1 AJ-2019 1, Cloacina: Cloacina sp. 3 AJ-2019 1, Cloacina: Cloacina sp. 4 AJ-2019 1, Necator: Necator sp. type II 28, Necator: Necator sp. type III 1, Oesophagostomum: Oesophagostomum sp. 29_S2-217OLI / 31_S2-324COC 1, Oesophagostomum: Oesophagostomum sp. 30_S2-29ZYO 1, Oesophagostomum: Oesophagostomum sp. 3335_MDR_CAM_OH15 1, Oesophagostomum: Oesophagostomum sp. 3341_CEB_CAM / 9800_CEB_CAM_A_OH13 1, Oesophagostomum: Oesophagostomum sp. 9800_CEB_CAM_B_OH14 1, Oesophagostomum: Oesophagostomum sp. ASV_12 1, Oesophagostomum: Oesophagostomum sp. ASV_40 1, Oesophagostomum: Oesophagostomum sp. MC-2015 1, Oesophagostomum: Oesophagostomum sp. OTU_142 1, Oesophagostomum: Oesophagostomum sp. OTU_152 1, Oesophagostomum: Oesophagostomum sp. OTU_180 1, Teladorsagia circumcincta: goat line 2, Trichostrongylus: Trichostrongylus sp. 1 SS-2018 1, Trichostrongylus: Trichostrongylus sp. 2 SS-2018 1, Trichostrongylus: Trichostrongylus sp. SMNPGL33R 1, Trichostrongylus: Trichostrongylus sp. SMNPOL32R 1, Trichostrongylus: Trichostrongylus sp. SMNPOL33R 1
+
+Grade (best member):
+    complete         4,836   40.2%
+    near_complete    3,569   29.6%
+    partial_90         767    6.4%
+    partial_75         518    4.3%
+    partial            546    4.5%
+    unmeasured       1,808   15.0%
+
+Deepest rank - nanopore (whole ITS2; 258 species-level records tied with another species' over their span):
+    species         10,932   90.8%
+    genus            1,102    9.1%
+    family               9    0.1%
+    order                1    0.0%
+    class                0    0.0%
+    phylum               0    0.0%
+    kingdom              0    0.0%
+    superkingdom         0    0.0%
+    (none)               0    0.0%
+  Illumina 150x150 (windows 130 + 83, 11,239 window groups; 400 tied):
+    species         10,774   89.5%
+    genus            1,258   10.4%
+    family              11    0.1%
+    order                1    0.0%
+    class                0    0.0%
+    phylum               0    0.0%
+    kingdom              0    0.0%
+    superkingdom         0    0.0%
+    (none)               0    0.0%
+  Illumina 250x250 (windows 230 + 183, 11,980 window groups; 265 tied):
+    species         10,925   90.7%
+    genus            1,109    9.2%
+    family               9    0.1%
+    order                1    0.0%
+    class                0    0.0%
+    phylum               0    0.0%
+    kingdom              0    0.0%
+    superkingdom         0    0.0%
+    (none)               0    0.0%
+  Illumina 300x300 (windows 280 + 233, 12,038 window groups; 258 tied):
+    species         10,932   90.8%
+    genus            1,102    9.1%
+    family               9    0.1%
+    order                1    0.0%
+    class                0    0.0%
+    phylum               0    0.0%
+    kingdom              0    0.0%
+    superkingdom         0    0.0%
+    (none)               0    0.0%
+
+Primer fit (best member holding the sites):
+    exact              242    2.0%
+    near               407    3.4%
+    poor             1,201   10.0%
+    one_site         7,358   61.1%
+    unknown          2,836   23.5%
+
+Species margins over the shorter record's span, read whole (11,190 species-level records):
+    0 (inside another species' record: tied)         258
+    1 edit                                           690
+    2 edits                                          522
+    3-5 edits                                      1,328
+    6-10 edits                                     1,361
+    11+ edits                                      2,917
+    no other species within reach                  4,114
+
+For the DADA2 workflow (README: For DADA2 and IdTaxa users):
+  nemits2_v0.2.4_dada2.fasta
+  nemits2_v0.2.4_idtaxa.RData
+  trim_28s.R
+  Run trim_28s.R on the ASVs first: records stop before the 28S stretch.
