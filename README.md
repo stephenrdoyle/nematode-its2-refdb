@@ -54,6 +54,7 @@ Curation of the within-genus contained pairs (`docs/curation_contained_pairs_202
 - *Heterorhabditis sonorensis* (14 accessions) relabelled *H. taysearae*, its senior synonym (Dhakal et al. 2021).
 - *Hoplolaimus stephanus* (33 accessions) relabelled *H. galeatus*, its senior synonym (Subbotin et al. 2025).
 - *Ditylenchus dipsaci* MG384729 dropped: it carries the *D. weischeri* ITS2 and is 13 edits from every other *D. dipsaci* record.
+- *Hysterothylacium amoyense* MW370925 dropped: it carries the *H. fabri* ITS2 and is 97 edits from every other *H. amoyense* record.
 
 ## v0.2.3
 
