@@ -47,6 +47,26 @@ record anchored at both ends: `complete`, `near_complete` (>= 98%),
 `partial_90`, `partial_75`, `partial`, or `unmeasured` (no relative at
 >= 80% identity).
 
+## Unreleased
+
+- **Contained records flagged** (docs/DESIGN.md §5). A named record
+  whose ITS2 lies exactly inside a named record of another species (the
+  same sequence, a few bases shorter at one or both ends) is kept and
+  flagged: two new `taxonomy.tsv` columns, `contained_in` and
+  `contains`, list the other-species records, and `manifest.json` →
+  `counts` → `contained` counts them. Such records were already tied
+  (margin 0, stopped at the rank the two share); now a consumer can see
+  which records they are tied with. On v0.2.0's inputs: 152 record
+  pairs, 58 species pairs, 187 records; 147 pairs within a genus, 5
+  across genera (synonyms or mislabels). On v0.2.1's: 151, 57 and 185;
+  the one strongylid pair within a genus, *Spiculopteragia spiculoptera*
+  inside *S. boehmi*, went with v0.2.1's relabel. None in the livestock
+  strongylid genera (cyathostomins, *Haemonchus*, *Teladorsagia*,
+  *Trichostrongylus*, *Cooperia*, *Oesophagostomum* and the rest).
+  Rebuilt from v0.2.0's and v0.2.1's inputs, every other file is
+  byte-identical.
+- Tests: `python3 -m unittest discover tests`.
+
 ## v0.2.1
 
 12,053 records and 1,872 named species, from the same sources as
@@ -294,7 +314,8 @@ Groups are the nematode clades of Blaxter et al. (1998), split by
 lifestyle. Insect parasites (*Steinernema*, *Heterorhabditis*) count as
 animal parasites; fungal feeders (*Aphelenchoides*, *Bursaphelenchus*)
 count as plant parasites. A record whose span sits exactly inside
-another species' record is tied with it and stops at the rank they share.
+another species' record is tied with it and stops at the rank they share;
+`taxonomy.tsv`'s `contained_in` and `contains` name the other record.
 
 Most species-level records are close to another species: 723 at one
 edit, 549 at two, 290 tied (`species_margins.tsv`, read whole), over a median ITS2 of
@@ -499,7 +520,8 @@ read set listed in `curation/long_read_sources.tsv` with
 `bin/its2_scan.py scan`, then
 `bin/genome_layer.py curation/long_read_sources.tsv ${S}_taxonomy_nr.txt curation/long_read_its2.tsv`.
 
-Testing: `bin/its2_leave_one_out.py` (gap rule), `bin/loo_dada2.py`
+Testing: `python3 -m unittest discover tests` (build rules),
+`bin/its2_leave_one_out.py` (gap rule), `bin/loo_dada2.py`
 (assignTaxonomy or IdTaxa on the same queries), `bin/loo_group_rules.py`;
 `bin/real_data.sh` for real data (`bin/trim_primers.py`,
 `bin/dada2_nemabiome.R`, `bin/trim_28s.py`, `bin/assign_taxonomy.R`,
@@ -515,7 +537,7 @@ download comes from.
 | file | holds |
 |---|---|
 | `refdb.fasta` | one record per unique ITS2 |
-| `taxonomy.tsv` | superkingdom ... species, deepest rank, members, grade, coverage, sources, lineage (a published line within a species; blank for nearly all) |
+| `taxonomy.tsv` | superkingdom ... species, deepest rank, members, grade, coverage, sources, lineage (a published line within a species; blank for nearly all), contained_in / contains (named records of another species holding this ITS2 exactly, or held by it) |
 | `members.tsv` | every source record, its grade, and bases trimmed at each end |
 | `conflicts.tsv` | records whose members disagree at order or above |
 | `primer_fit.tsv` | NC1/NC2 edits of each record's best member, where its source record holds the sites |
