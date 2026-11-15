@@ -1,8 +1,8 @@
 # Notes for amphid: using the nematode ITS2 database
 
 From nematode-its2-refdb (named nemabiome-its2-refdb until v0.1.4)
-v0.1.1 (2026-11-10); updated for v0.2.2 (2026-11-15, "What changed in
-v0.2.2" below). The database follows
+v0.1.1 (2026-11-10); updated for v0.2.3 (2026-11-15, "What changed in
+v0.2.3" below). The database follows
 vespa-18s-refdb's release format. These are the places where ITS2 needs
 something V4 did not.
 
@@ -12,6 +12,21 @@ which maps each point below to the amphid code it changes. The issue
 also covers two points not here: `taxonomy.tsv` has NCBI's eight ranks,
 not the PR2 levels amphid hard-codes, and amphid's identity charges a
 read's unaligned ends - for ITS2, the 28S stretch - as differences.
+
+## What changed in v0.2.3
+
+**The format did not change.** `members.tsv` notes now give, for a
+record relabelled in curation, the name its GenBank record carries, and
+`manifest.json` counts them (`counts.relabelled`). **Curation** of the
+five contained pairs that crossed a genus: synonyms relabelled
+(*Paratylenchus paralatescens* -> *Gracilacus paralatescens*;
+*Oscheius microvilli*, NCBI's *Caenorhabditis microvilli*, -> *O.
+myriophilus*), misidentified records dropped (six *Pseudoterranova
+decipiens* larvae with the *Phocanema bulbosa* ITS2; the only
+*Rugopharynx alpha*, *Papillostrongylus barbatus*'s ITS2). 12,048
+records, 1,869 named species; 146 contained pairs, none across a genus;
+9 records that stopped at family now reach species. Leave-one-out, gap
+rule read whole: 58.2% / 99.3% / 5.2% (v0.2.2: 57.9% / 99.3% / 5.5%).
 
 ## What changed in v0.2.2
 

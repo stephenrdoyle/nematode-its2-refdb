@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="536" viewBox="0 0 760 536" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif" role="img" aria-label="How much of the ITS2 the 12,053 records hold">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="536" viewBox="0 0 760 536" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif" role="img" aria-label="How much of the ITS2 the 12,048 records hold">
 <rect width="760" height="536" rx="8" fill="#fcfcfb" stroke="rgba(11,11,11,0.10)"/>
-<text x="24" y="34" font-size="17" font-weight="600" fill="#0b0b0b">How much of the ITS2 the 12,053 records hold</text>
-<text x="24" y="56" font-size="13" fill="#52514e">nemits2_v0.2.2: records per clade and lifestyle, by grade</text>
+<text x="24" y="34" font-size="17" font-weight="600" fill="#0b0b0b">How much of the ITS2 the 12,048 records hold</text>
+<text x="24" y="56" font-size="13" fill="#52514e">nemits2_v0.2.3: records per clade and lifestyle, by grade</text>
 <rect x="196" y="72" width="12" height="12" rx="3" fill="#256abf"/>
 <text x="214" y="82.5" font-size="12.5" fill="#52514e">Complete</text>
 <rect x="295.6" y="72" width="12" height="12" rx="3" fill="#86b6ef"/>
@@ -44,11 +44,11 @@
 <path d="M200.0,222.0 h2.0 a2.0,2.0 0 0 1 2.0,2.0 v12.0 a2.0,2.0 0 0 1 -2.0,2.0 h-2.0 z" fill="#b4b3ac"/>
 <text x="212.0" y="234.5" font-size="12.5" fill="#52514e" font-variant-numeric="tabular-nums">19</text>
 <text x="184" y="262.5" font-size="13" font-weight="600" fill="#0b0b0b" text-anchor="end">III · animal parasites</text>
-<rect x="196.0" y="250.0" width="79.0" height="16" fill="#256abf"/>
-<rect x="277.0" y="250.0" width="63.6" height="16" fill="#86b6ef"/>
-<rect x="342.6" y="250.0" width="32.9" height="16" fill="#eb6834"/>
-<path d="M377.5,250.0 h17.0 a4,4 0 0 1 4,4 v8.0 a4,4 0 0 1 -4,4 h-17.0 z" fill="#b4b3ac"/>
-<text x="406.5" y="262.5" font-size="12.5" fill="#52514e" font-variant-numeric="tabular-nums">2,145</text>
+<rect x="196.0" y="250.0" width="78.9" height="16" fill="#256abf"/>
+<rect x="276.9" y="250.0" width="63.6" height="16" fill="#86b6ef"/>
+<rect x="342.5" y="250.0" width="32.6" height="16" fill="#eb6834"/>
+<path d="M377.2,250.0 h17.0 a4,4 0 0 1 4,4 v8.0 a4,4 0 0 1 -4,4 h-17.0 z" fill="#b4b3ac"/>
+<text x="406.1" y="262.5" font-size="12.5" fill="#52514e" font-variant-numeric="tabular-nums">2,141</text>
 <text x="184" y="290.5" font-size="13" font-weight="600" fill="#0b0b0b" text-anchor="end">IV · animal parasites</text>
 <rect x="196.0" y="278.0" width="14.8" height="16" fill="#256abf"/>
 <rect x="212.8" y="278.0" width="21.0" height="16" fill="#86b6ef"/>
@@ -69,10 +69,10 @@
 <text x="220.0" y="346.5" font-size="12.5" fill="#52514e" font-variant-numeric="tabular-nums">50</text>
 <text x="184" y="374.5" font-size="13" font-weight="600" fill="#0b0b0b" text-anchor="end">V · animal parasites</text>
 <rect x="196.0" y="362.0" width="108.9" height="16" fill="#256abf"/>
-<rect x="306.9" y="362.0" width="136.8" height="16" fill="#86b6ef"/>
-<rect x="445.7" y="362.0" width="65.3" height="16" fill="#eb6834"/>
-<path d="M513.0,362.0 h21.6 a4,4 0 0 1 4,4 v8.0 a4,4 0 0 1 -4,4 h-21.6 z" fill="#b4b3ac"/>
-<text x="546.6" y="374.5" font-size="12.5" fill="#52514e" font-variant-numeric="tabular-nums">3,629</text>
+<rect x="306.9" y="362.0" width="136.7" height="16" fill="#86b6ef"/>
+<rect x="445.6" y="362.0" width="65.3" height="16" fill="#eb6834"/>
+<path d="M512.9,362.0 h21.6 a4,4 0 0 1 4,4 v8.0 a4,4 0 0 1 -4,4 h-21.6 z" fill="#b4b3ac"/>
+<text x="546.5" y="374.5" font-size="12.5" fill="#52514e" font-variant-numeric="tabular-nums">3,628</text>
 <text x="184" y="402.5" font-size="13" font-weight="400" fill="#0b0b0b" text-anchor="end">V · free-living</text>
 <rect x="196.0" y="390.0" width="21.2" height="16" fill="#256abf"/>
 <rect x="219.2" y="390.0" width="2.7" height="16" fill="#86b6ef"/>
