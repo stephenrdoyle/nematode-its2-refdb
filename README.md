@@ -51,6 +51,7 @@ record anchored at both ends: `complete`, `near_complete` (>= 98%),
 
 Curation of the within-genus contained pairs (`docs/curation_contained_pairs_2026-11.md`):
 - *Globodera achilleae* (AY599498) relabelled *G. millefolii*, its senior synonym (Subbotin et al. 2011); identical to *G. millefolii* from the type host and region.
+- *Heterorhabditis sonorensis* (14 accessions) relabelled *H. taysearae*, its senior synonym (Dhakal et al. 2021).
 
 ## v0.2.3
 
