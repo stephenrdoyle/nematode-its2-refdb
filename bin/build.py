@@ -74,6 +74,13 @@ member is merged and the record stops where they agree (unresolved),
 listed for review. Below order, disagreement is left as biology: the
 record stops at the rank its members share.
 
+CONTAINED. A named record whose ITS2 lies exactly inside a named record
+of another species (identical wherever both have sequence; the shorter
+lacks a few bases at one or both ends) is kept, not merged, and flagged:
+taxonomy.tsv's contained_in lists the other-species records holding it,
+contains those it holds. Both records' margin to the other species is 0,
+so both stop at the rank the two share (contained_pairs).
+
 FOLDING. A partial record identical over its span to a full-length record
 of the same species is folded into it (fold_contained). Then a weak
 record - partial or unmeasured, one source record - within 1 edit of a
@@ -320,6 +327,44 @@ def margins(fasta, seqs, tax, geoms, workers, skip=frozenset()):
 
 
 FULL_GRADES = ("complete", "near_complete")
+
+CONTAIN_K = 16
+
+
+def contained_pairs(seqs, tax):
+    """(shorter, longer) pairs of named records of different species where
+    the shorter's ITS2 lies exactly inside the longer's. Identical ITS2s
+    are one record already (a shared record if their members name two
+    species); this is the same ITS2 with bases missing from one or both
+    ends of one record, so a read scores the same against both over the
+    shorter's span. A record whose species is not named (shared,
+    unnamed) is left out: it names no species to conflict with. Every
+    record holding both ends of the shorter as 16-mers is checked."""
+    named = [i for i in tax if tax[i]["species_status"] == "named"]
+    idx = collections.defaultdict(set)
+    for i in named:
+        s = seqs[i]
+        for p in range(len(s) - CONTAIN_K + 1):
+            idx[s[p:p + CONTAIN_K]].add(i)
+    pairs = set()
+    for i in named:
+        s = seqs[i]
+        cands = (idx[s[:CONTAIN_K]] & idx[s[-CONTAIN_K:]] if len(s) >= CONTAIN_K else named)
+        for j in cands:
+            if (tax[j]["species"] != tax[i]["species"] and len(seqs[j]) > len(s)
+                    and s in seqs[j]):
+                pairs.add((i, j))
+    return sorted(pairs)
+
+
+def contained_counts(pairs, tax):
+    return {"record_pairs": len(pairs),
+            "species_pairs": len({tuple(sorted((tax[a]["species"], tax[b]["species"])))
+                                  for a, b in pairs}),
+            "records": len({i for p in pairs for i in p}),
+            "pairs_with_partial": sum(1 for p in pairs
+                                      if any(tax[i]["grade"] not in FULL_GRADES for i in p)),
+            "cross_genus_pairs": sum(1 for a, b in pairs if tax[a]["genus"] != tax[b]["genus"])}
 
 
 def fold_contained(seqs, tax, members, workers):
@@ -736,12 +781,22 @@ def main() -> int:
         if ls and not tax[rid]["genus"]:
             sys.exit(f"{rid}: lineage {ls.pop()} on a record with no genus")
         tax[rid]["lineage"] = ls.pop() if ls else ""
+    # Contained records of another species: kept apart (their sequences
+    # differ at the ends), flagged, and tied in the margins below.
+    contained = contained_pairs(seqs, tax)
+    inside, holds = collections.defaultdict(list), collections.defaultdict(list)
+    for short, long_ in contained:
+        inside[short].append(long_)
+        holds[long_].append(short)
+    for rid in order:
+        tax[rid]["contained_in"] = ";".join(sorted(inside.get(rid, [])))
+        tax[rid]["contains"] = ";".join(sorted(holds.get(rid, [])))
 
     with open(os.path.join(out, "refdb.fasta"), "w") as fh:
         for rid in order:
             fh.write(f">{rid}\n{seqs[rid]}\n")
     cols = ["id"] + RANKS + ["deepest_rank", "species_status", "members", "grade", "coverage",
-                             "sources", "lineage"]
+                             "sources", "lineage", "contained_in", "contains"]
     with open(os.path.join(out, "taxonomy.tsv"), "w") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, delimiter="\t", lineterminator="\n")
         w.writeheader()
@@ -785,6 +840,17 @@ def main() -> int:
     geoms = [windows(r) for r in read_lengths]
     informal_ids &= set(seqs)
     marg = margins(os.path.join(out, "refdb.fasta"), seqs, tax, geoms, a.workers, informal_ids)
+    # A contained pair is 0 edits apart read whole (and through windows that
+    # see both records whole): margins() finds such a pair through minimap2,
+    # and this makes sure of it.
+    for short, long_ in contained:
+        for rid, other in ((short, long_), (long_, short)):
+            m = marg[rid]
+            for col, g in enumerate([None] + geoms):
+                if g and len(seqs[rid]) > sum(g):
+                    continue
+                if m[1 + col] != "0":
+                    m[1 + col], m[2 + len(geoms) + col] = "0", other
     with open(os.path.join(out, "species_margins.tsv"), "w") as fh:
         fh.write("\t".join(["id", "margin_whole"] + [f"margin_{w1}x{w2}" for w1, w2 in geoms]
                            + ["nearest_whole"] + [f"nearest_{w1}x{w2}" for w1, w2 in geoms]) + "\n")
@@ -890,6 +956,7 @@ def main() -> int:
                    "renamed": len(renamed), "update_unanchored": len(unanchored),
                    "dropped_partials": dropped_partials,
                    "informal_records": len(informal_ids),
+                   "contained": contained_counts(contained, tax),
                    "informal_left_out": sum(1 for m in members if m["note"].startswith("left out: informal")
                                             or "; left out: informal" in m["note"]),
                    "member_roles": dict(roles), "conflicts": dict(dec), "primer_fit": dict(pf)},
@@ -917,6 +984,10 @@ def main() -> int:
                f"source records left out as identical to a named record "
                f"{manifest['counts']['informal_left_out']:,}",
              "conflicts (order or above): " + (", ".join(f"{k} {v}" for k, v in sorted(dec.items())) or "none"),
+             "contained in another species' record (named, exactly over the shorter's span): "
+             + "{record_pairs:,} record pairs, {species_pairs:,} species pairs, {records:,} records; "
+               "{pairs_with_partial:,} pairs involve a partial or unmeasured record, "
+               "{cross_genus_pairs:,} cross a genus".format(**manifest["counts"]["contained"]),
              "lineages (records): " + (", ".join(f"{k} {v}" for k, v in sorted(lcount.items())) or "none"),
              "", "Grade (best member):"] + table(gcount, GRADES, len(order))
     lines += ["", f"Deepest rank - nanopore (whole ITS2; {nano_tied:,} species-level records "

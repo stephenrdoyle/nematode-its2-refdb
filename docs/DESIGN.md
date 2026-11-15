@@ -217,6 +217,39 @@ same effect dropped pairs in vespa-18s-refdb's neighbour check.)
 297 and 416 in v0.1.2; 343
   and 473 in v0.1.1, 410 and 522 in
   v0.1.0, 732 and 745 before curation and folding).
+- **Contained records** (`contained_in` / `contains` in `taxonomy.tsv`,
+  from the release after v0.2.1): a named record whose ITS2 lies exactly
+  inside a named record of another species, the same sequence with
+  bases missing from one or both ends of one of them. Most ties are
+  these; the rest are ties with a shared record. In v0.2.0's inputs,
+  152 record pairs of 58 species pairs (187 records): 147 pairs within
+  a genus (mostly *Heterodera*, *Meloidogyne*, *Anisakis*,
+  *Heterorhabditis*, *Hysterothylacium*, *Hoplolaimus*, *Ascaris*), and
+  5 across genera that are synonyms or mislabels (*Gracilacus* /
+  *Paratylenchus paralatescens*, *Phocanema bulbosa* / *Pseudoterranova
+  decipiens*, *Oscheius myriophilus* inside *Caenorhabditis
+  microvilli*, *Rugopharynx alpha* inside *Papillostrongylus
+  barbatus*). The lengths differ by 1 to 134 bases, most by under 10.
+  54 pairs involve a record that is not full length (45 a partial
+  grade, 9 unmeasured). All were already tied (margin 0) and so already
+  stopped at genus or above, but nothing said which records they were
+  tied with. A leave-out benchmark in nf-amphid-pipeline named a
+  held-out *Contracaecum rudolphii* read *C. ogmorhini* at 100%: an
+  *ogmorhini* record sits inside a *rudolphii* one.
+  Both records are kept and flagged, not merged into a shared record
+  as identical ITS2s are. Their sequences differ: the longer has bases
+  the shorter lacks, and merging would either throw those away or count
+  a record that never had them as evidence the two species share them.
+  A near-complete or partial record lacks its ends because it was cut
+  short, not because its species does. Merging would also overturn
+  decisions taken by name: *Ascaris lumbricoides* and *A. suum* stay
+  apart (§5.3). Kept, each record keeps its species and its span; the
+  flag says ITS2 does not separate it from the other species, and the
+  margin and deepest rank agree (the build sets the margin read whole
+  to 0 even if minimap2 missed the pair; in v0.2.0's inputs it never
+  did). Only named records of different species count: a record
+  inside one of its own species is folded (`fold_contained`), and a
+  shared or unnamed record names no species to conflict with.
 - **`species_status`** (`taxonomy.tsv`): `named` if the record reaches
   species; `shared` if it stops above species because its members name
   two or more species (80 records, 95 in v0.1.1: real shared ITS2s, such as *Cylicocyclus
@@ -1270,6 +1303,13 @@ As vespa-18s-refdb (`refdb.fasta`, `taxonomy.tsv`, `members.tsv`,
   name is unchanged, so the ranks, resolution tables and k-mer files are
   as without it. The classifier reports it in a `lineage` column when
   every tied best record carries it.
+- then `contained_in` and `contains` (§5): the ids, `;`-separated, of
+  named records of another species that hold this record's ITS2
+  exactly, or that it holds. Blank for nearly every record. The margin
+  and deepest rank already stop both records at the rank they share;
+  the columns name the other record. `manifest.json` → `counts` →
+  `contained` gives record pairs, species pairs, records, pairs with a
+  record not full length, and pairs across genera.
 - **k-mer classifier files** (`bin/export_kmer.sh`), for the DADA2
   workflow: an assignTaxonomy reference (`bin/export_dada2.py`; a record
   is written only to the rank it reaches), an IdTaxa `trainingSet`
