@@ -37,7 +37,8 @@ species for each backbone taxid; a record named otherwise when markerDB
 built the backbone takes NCBI's current names (a moved genus, a synonym),
 noted in members.tsv. Then curation/overrides.tsv (--overrides) drops or
 relabels source records; a dropped record stays in members.tsv with its
-reason. A taxonomy row may carry a source column (bin/genbank_update.py's
+reason, and a relabelled one notes the name its source record carries,
+so an accession followed to GenBank can be read beside its new label. A taxonomy row may carry a source column (bin/genbank_update.py's
 rows, appended to the backbone's): its record is credited to that source,
 and taken only where bin/its2.py cut it at an anchor or its own end. Last, curation/lineages.tsv (--lineages) names a published line
 within a species (the Teladorsagia circumcincta goat line), or the
@@ -158,6 +159,19 @@ def merge(labels):
         else:
             out.append(vals.pop())
     return out
+
+
+def relabel_note(source, current):
+    """members.tsv's note for a record relabelled in curation/overrides.tsv:
+    the name its source record carries (GenBank's, for an accession), so
+    the accession can be followed to a record named otherwise, and NCBI's
+    current name where that differs."""
+    def name(lab):
+        return next((x for x in reversed(lab) if x), "")
+    note = f"relabelled (curation/overrides.tsv): source name {name(source)}"
+    if name(current) != name(source):
+        note += f", NCBI name {name(current)}"
+    return note
 
 
 def merge_records(records):
@@ -627,7 +641,8 @@ def main() -> int:
             source_of[acc] = r["source"]
 
     # --- curation: current NCBI names, then drops and relabels
-    renamed = {}
+    source_label = {acc: lab for acc, (_accn, lab) in label.items()}
+    renamed, relabelled = {}, {}
     if a.names and os.path.exists(a.names):
         names = {r["taxid"]: r for r in csv.DictReader(open(a.names), delimiter="\t")}
         for acc, tid in taxid.items():
@@ -661,6 +676,7 @@ def main() -> int:
                 lab = r["label"].split(";")
                 if len(lab) != len(RANKS):
                     sys.exit(f"relabel {acc}: need {len(RANKS)} ranks")
+                relabelled[acc] = relabel_note(source_label[acc], label[acc][1])
                 label[acc] = (label[acc][0], lab)
             else:
                 sys.exit(f"override {acc}: unknown action {r['action']}")
@@ -743,7 +759,8 @@ def main() -> int:
                             "accession": label[acc][0],
                             "label": ";".join(labs[acc]), "role": role[acc], "grade": g["grade"],
                             "coverage": g["coverage"], "trimmed_start": g["trimmed_start"],
-                            "trimmed_end": g["trimmed_end"], "note": renamed.get(acc, "")})
+                            "trimmed_end": g["trimmed_end"],
+                            "note": relabelled.get(acc) or renamed.get(acc, "")})
     informal_gone = drop_informal_overlaps(seqs, tax, members, informal_ids, a.workers)
     informal_ids -= informal_gone
     informal_misplaced = drop_informal_misplaced(seqs, tax, members, informal_ids, a.workers)
@@ -953,7 +970,8 @@ def main() -> int:
         "counts": {"records": len(order), "members": len(members), "named_species": len(named),
                    "lineage_records": dict(lcount),
                    "grade": dict(gcount), "deepest_rank_nanopore": dict(nano), "folded": folded, "folded_weak": folded_weak,
-                   "renamed": len(renamed), "update_unanchored": len(unanchored),
+                   "renamed": len(renamed), "relabelled": len(relabelled),
+                   "update_unanchored": len(unanchored),
                    "dropped_partials": dropped_partials,
                    "informal_records": len(informal_ids),
                    "contained": contained_counts(contained, tax),
@@ -977,6 +995,7 @@ def main() -> int:
              + f"; partial records folded into a same-species full-length record: {folded:,}"
              + f"; weak records folded into a same-species record within 1 edit: {folded_weak:,}"
              + f"; renamed to current NCBI names: {len(renamed):,}"
+             + f"; relabelled in curation/overrides.tsv: {len(relabelled):,}"
              + (f"; update records left out, cut at no anchor: {len(unanchored):,}" if unanchored else "")
              + (f"; partial records dropped, species has a full-length record: {dropped_partials:,}"
                 if dropped_partials else "")

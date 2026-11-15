@@ -47,6 +47,17 @@ record anchored at both ends: `complete`, `near_complete` (>= 98%),
 `partial_90`, `partial_75`, `partial`, or `unmeasured` (no relative at
 >= 80% identity).
 
+## Unreleased
+
+- **Relabels are recorded in `members.tsv`.** A source record relabelled
+  in `curation/overrides.tsv` now notes the name its source record
+  carries ("relabelled (curation/overrides.tsv): source name
+  *Cooperia spatulata*", and NCBI's current name where that differs), so
+  an accession followed to GenBank can be read beside its new label.
+  Before, only `curation/overrides.tsv` recorded it. `manifest.json`
+  counts them (`counts.relabelled`: 45 on v0.2.2's inputs); every other
+  file is unchanged.
+
 ## v0.2.2
 
 12,053 records and 1,872 named species, the same records as v0.2.1:
@@ -541,7 +552,7 @@ download comes from.
 |---|---|
 | `refdb.fasta` | one record per unique ITS2 |
 | `taxonomy.tsv` | superkingdom ... species, deepest rank, members, grade, coverage, sources, lineage (a published line within a species; blank for nearly all), contained_in / contains (named records of another species holding this ITS2 exactly, or held by it) |
-| `members.tsv` | every source record, its grade, and bases trimmed at each end |
+| `members.tsv` | every source record, its grade, bases trimmed at each end, and a note: why it was dropped or folded, its name before an NCBI rename, or, if relabelled in `curation/overrides.tsv`, the name its source record (GenBank) carries |
 | `conflicts.tsv` | records whose members disagree at order or above |
 | `primer_fit.tsv` | NC1/NC2 edits of each record's best member, where its source record holds the sites |
 | `resolution_nanopore.tsv`, `resolution_illumina_<R>x<R>.tsv` | deepest rank read whole or through the two read windows, grade, margin |
