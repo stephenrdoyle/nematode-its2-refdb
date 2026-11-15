@@ -1,8 +1,8 @@
 # Notes for amphid: using the nematode ITS2 database
 
 From nematode-its2-refdb (named nemabiome-its2-refdb until v0.1.4)
-v0.1.1 (2026-11-10); updated for v0.2.1 (2026-11-14, "What changed in
-v0.2.1" below). The database follows
+v0.1.1 (2026-11-10); updated for v0.2.2 (2026-11-15, "What changed in
+v0.2.2" below). The database follows
 vespa-18s-refdb's release format. These are the places where ITS2 needs
 something V4 did not.
 
@@ -12,6 +12,21 @@ which maps each point below to the amphid code it changes. The issue
 also covers two points not here: `taxonomy.tsv` has NCBI's eight ranks,
 not the PR2 levels amphid hard-codes, and amphid's identity charges a
 read's unaligned ends - for ITS2, the 28S stretch - as differences.
+
+## What changed in v0.2.2
+
+**Two columns added to `taxonomy.tsv`, nothing else:** `contained_in`
+and `contains`, the `;`-separated ids of named records of another
+species that hold this record's ITS2 exactly (the same sequence, bases
+missing at one or both ends), or that it holds; and
+`counts.contained` in `manifest.json`. 151 record pairs, 57 species
+pairs, 185 records, none in livestock strongylid genera. These records
+were already tied (margin 0, `deepest_rank` genus or above in the
+resolution tables), so no margin, rank or record changed. A held-out
+read of one species of such a pair matches the other at 100%
+(*Contracaecum rudolphii* named *C. ogmorhini* in amphid's leave-out
+benchmark): the columns name that other record. Records are the same
+as v0.2.1's.
 
 ## What changed in v0.2.1
 
