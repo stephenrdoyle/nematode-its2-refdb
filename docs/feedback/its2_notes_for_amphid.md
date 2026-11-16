@@ -2,7 +2,7 @@
 
 From nematode-its2-refdb (named nemabiome-its2-refdb until v0.1.4)
 v0.1.1 (2026-11-10); updated for v0.2.4 (2026-11-15, "What changed in
-v0.2.4" below). The database follows
+v0.2.4" below), and with where amphid stands (2026-11-16). The database follows
 vespa-18s-refdb's release format. These are the places where ITS2 needs
 something V4 did not.
 
@@ -12,6 +12,68 @@ which maps each point below to the amphid code it changes. The issue
 also covers two points not here: `taxonomy.tsv` has NCBI's eight ranks,
 not the PR2 levels amphid hard-codes, and amphid's identity charges a
 read's unaligned ends - for ITS2, the 28S stretch - as differences.
+
+## Where amphid stands (2026-11-16)
+
+amphid follows this recipe for classification end to end, and for
+sequence inference by its own route (below). Each point, and the amphid
+pull request that did it
+(stephenrdoyle/nf-amphid-pipeline):
+
+| recipe point | in amphid |
+|---|---|
+| NCBI's ranks, `species_status`, `grade`, `coverage`, `members.tsv` | #10 |
+| score over the reference's span (§1); `nearest`, `next`, `grade` | #10 |
+| NC1/NC2 with a 0-3 base spacer (§2) | #10 (`--db_primer_offset 3`) |
+| windows from `illumina_geometries` (§3) | #10 |
+| join pairs hybrid (§3): merged where they overlap, else two windows | #10 (amphid's own merge, not `mergePairs`) |
+| read 2 starting inside 28S, cut at the 28S motif (§3) | #24 |
+| a read 1 that reaches 28S (§5) | #10 (a window may read past its record's end for free) |
+| PacBio (§3a): declared platform, demultiplexing (`lima` or built-in), single reads scored whole | #13-#16 |
+| gap rule, with the exact-match clause (§5) | #10, #17 |
+| contained pairs (`contained_in` / `contains`, v0.2.2) | #18 |
+| tiered rule as the default, tentative calls flagged, the gap rule's call beside it (§5) | #20 |
+| repeats scored by copy number (§5) | #21 |
+| informal "Genus sp." records only after the named ones (§5) | #22 |
+| `lineage` reported (§5), as `release_lineage` | #23 |
+
+**Not yet in amphid:** §7, the unplaced ITS2 and not-ITS2-like
+sequences written to their own FASTA files.
+
+**Where amphid differs, on purpose:**
+
+- **Denoising.** amphid keeps its own denoiser rather than DADA2
+  (decided 2026-11-16): an abundance-based (UNOISE-style) fold of
+  substitution errors within a length, then a second pass that folds
+  sequences an indel or two from a much more abundant one (#25), as this
+  repository's own `its2_classify.py` `denoise()` does. On the same
+  reads, with this repository's trimming and DADA2 on one side and its
+  `classify_asvs.py` on both, the calls agree:
+
+  | v0.2.4 | species, gap: amphid / DADA2 | tiered: amphid / DADA2 | per-sample Bray-Curtis median (max) |
+  |---|---|---|---|
+  | PRJNA936713 2x250 | 96.3 / 95.7% | 98.9 / 99.4% | 0.006 (0.056) |
+  | PRJNA1524548 2x250 | 94.0 / 94.3% | 98.0 / 98.3% | 0.009 (0.070) |
+  | PRJNA936713 2x150 | 95.9 / 95.2% | 98.7 / 98.5% | 0.008 (0.049) |
+  | PRJNA1524548 2x150 | 93.9 / 94.7% | 97.9 / 98.3% | 0.011 (0.066) |
+
+  amphid keeps more, small sequences: a median 37-52 per sample at
+  2x250 against DADA2's 20-29. They are mostly the *Oesophagostomum*
+  AT-repeat lengths, which amphid keeps as possible real variation among
+  ITS2 copies (DADA2 folds them), and variants a few substitutions from
+  a more abundant sequence, each a small fraction of its sample. They do
+  not change the calls. On PacBio (S-BSST527, v0.2.2, tiered) 98.44% of
+  amphid's reads are named to species against 99.32% for DADA2's ASVs,
+  per-sample Bray-Curtis median 0.0047.
+- **Contained pairs.** amphid takes a record flagged `contained_in` /
+  `contains` as 0 edits from the other species, as the release's margins
+  do; `its2_classify.py` does not. In the leave-one-out (v0.2.4, 3,220
+  queries, read whole) this names a missing species as another for 100
+  queries against 157; otherwise amphid and `its2_classify.py` give the
+  same outcome on 98.8% of queries.
+
+amphid's own account of each step, with the measurements, is its
+`docs/REFERENCE_DATABASE.md` §12 and `docs/CONTRACTS.md`.
 
 ## What changed in v0.2.4
 
