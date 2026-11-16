@@ -17,7 +17,9 @@ writes the same release format, and is consumed by
 **Status: v0.2.4 (2026-11-15).** v0.1.0 was the first release. See
 [docs/DESIGN.md](docs/DESIGN.md) for the design and the measurements
 behind it, and [docs/feedback/its2_notes_for_amphid.md](docs/feedback/its2_notes_for_amphid.md)
-for what amphid needs to change to use it. DADA2 and IdTaxa users: see
+for what amphid needs to change to use it, and
+[docs/feedback/amphid_notes_for_its2.md](docs/feedback/amphid_notes_for_its2.md)
+for what amphid's runs have shown about the database. DADA2 and IdTaxa users: see
 [For DADA2 and IdTaxa users](#for-dada2-and-idtaxa-users).
 
 ## Download and verify
