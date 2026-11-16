@@ -36,9 +36,10 @@ pull request that did it
 | repeats scored by copy number (§5) | #21 |
 | informal "Genus sp." records only after the named ones (§5) | #22 |
 | `lineage` reported (§5), as `release_lineage` | #23 |
+| unplaced ITS2 and not-ITS2-like sequences, each well's share and their own FASTA files (§7) | #28 |
+| chimeras joined in the gap between the two reads (§3) | #29 |
 
-**Not yet in amphid:** §7, the unplaced ITS2 and not-ITS2-like
-sequences written to their own FASTA files.
+Every point of the recipe is now in amphid, the denoiser aside.
 
 **Where amphid differs, on purpose:**
 
@@ -65,6 +66,33 @@ sequences written to their own FASTA files.
   not change the calls. On PacBio (S-BSST527, v0.2.2, tiered) 98.44% of
   amphid's reads are named to species against 99.32% for DADA2's ASVs,
   per-sample Bray-Curtis median 0.0047.
+- **Chimeras.** Where this recipe relies on DADA2's chimera check,
+  amphid runs its own de novo check (UCHIME-like) on each sample's
+  sequences and, for window pairs, also catches joins in the gap
+  between the two reads (§3), which DADA2 cannot see (#29). A pair
+  under the family floor has each read scored alone: read 1 and read 2
+  each >= 97% to records of different genera is counted as a chimera,
+  even with neither parent in the sample. On the zoo set (PRJNA1137257,
+  2x150, v0.2.4) unplaced ITS2 fell from 0.40% to 0.30% of reads, with
+  the species and genus shares unchanged; at 2x250, where almost every
+  pair merges, nearly nothing changed. A pair whose other read is close
+  to no record stays unplaced: a parent the database lacks cannot be
+  told from a real sequence it lacks.
+
+  What then stays unplaced on the zoo set looks like the second:
+  sequences the release lacks, not missed chimeras (3,245 reads, 273
+  window pairs). In 74% of the reads one read is >= 97% to a record,
+  often identical to an abundant species (*T. axei*, *H. contortus*),
+  and the other is 90-92% to anything. For 77% of those, the unplaced
+  read never occurs with any other partner in the run, and 59% recur
+  identically in five or more animals; a chimera's missing parent would
+  show as its own, more abundant pair. Another 24% are 1-2 differences
+  from a more abundant unplaced sequence of the same sample (its
+  variants) or within-genus joins; 1% place in neither read. They point
+  to trichostrongylid congeners, and one *Trichuris* (read 1 identical
+  to *T. ovis*), missing from the release: candidates for the GenBank
+  update step, though an earlier BLAST of this set's unresolved ASVs
+  found nothing closer than the release.
 - **Contained pairs.** amphid takes a record flagged `contained_in` /
   `contains` as 0 edits from the other species, as the release's margins
   do; `its2_classify.py` does not. In the leave-one-out (v0.2.4, 3,220
