@@ -66,9 +66,10 @@ Curation of the within-genus contained pairs (`docs/curation_contained_pairs_202
 - In the coherence screen, six fewer `closer` calls and four fewer
   `displaced`; one new `closer`: the merged *G. millefolii* record, with
   AF161004 (*G. millefolii*) 43 edits off it, left for a later look.
-- **Leave-one-out** (3,220 queries, 1,226 species): gap rule 58.6%
-  species recall, 99.4% precision, 4.9% over-classification read whole
-  (v0.2.3: 58.2%, 99.3%, 5.2%).
+- **Leave-one-out** (3,220 queries, 1,226 species), read whole: tiered
+  rule (the default) 69.7% species recall, 99.0% precision, 8.4%
+  over-classification (v0.2.3: 69.3%, 99.0%, 8.8%); its gap-rule call
+  58.6%, 99.4%, 4.9% (v0.2.3: 58.2%, 99.3%, 5.2%).
 
 Earlier releases: [docs/RELEASES.md](docs/RELEASES.md).
 
@@ -161,10 +162,14 @@ missing species (`results/leave_one_out/metrics.txt`).
 
 | Classifier, this database | Species recall | Species precision | Genus recall | Genus precision | Over-classification |
 |---|---:|---:|---:|---:|---:|
-| `bin/classify_asvs.py`, gap rule | 58.6% | **99.4%** | 90.0% | 99.6% | **4.9%** |
-| `bin/classify_asvs.py`, tiered (gap + tentative) | 69.7% | 99.0% | 90.0% | 99.6% | 8.4% |
+| `bin/classify_asvs.py`, tiered (gap + tentative; the default) | 69.7% | 99.0% | 90.0% | 99.6% | 8.4% |
+| `bin/classify_asvs.py`, gap rule (the tiered rule's confident call) | 58.6% | **99.4%** | 90.0% | 99.6% | **4.9%** |
 | DECIPHER IdTaxa (threshold 60) | 80.4% | 97.6% | 94.4% | **99.7%** | 18.8% |
 | dada2 assignTaxonomy (minBoot 80) | **86.3%** | 95.7% | **97.9%** | 99.4% | 38.9% |
+
+The default is the tiered rule, which reports two calls for each read:
+the gap rule's, the confident one, and beside it a tentative species
+where the gap rule stops short. amphid calls the same way.
 
 The gap rule names a species only when the read is >= 99% identical to
 it and every other species is >= 4 edits further off, or the match is
@@ -305,9 +310,10 @@ confidence 62-76 and switched between species and genus with the seed.
 Which classifier to use is a trade-off (docs/DESIGN.md §6.2): k-mer
 classifiers name the most species when every species is in the
 database; when some may be missing, they name a wrong one far more often
-than the span-scored gap rule (`bin/classify_asvs.py`). Its tiered rule
-sits between them: 98-99% of reads named on both livestock sets, with
-less than half IdTaxa's over-classification.
+than the span-scored rules (`bin/classify_asvs.py`). Its tiered rule,
+the default, names 98-99% of reads on both livestock sets with less
+than half IdTaxa's over-classification; its gap-rule call, reported
+beside it, over-classifies least.
 
 ## Build
 

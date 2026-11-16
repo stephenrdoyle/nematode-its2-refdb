@@ -744,11 +744,13 @@ pairs, `bin/classify_asvs.py` for DADA2 ASVs. Both share the scorer.
   60% of the time, §6.1); genus at >= 97%, family at >= 95%. `shared` records count as another species,
   `unnamed` ones do not (§5). Informal "Genus sp." records are
   scored only where the named records stop above genus (§5.7).
-- **The tiered rule** (since v0.1.3): the gap rule's species calls, and
+- **The tiered rule** (since v0.1.3; the default, decided 2026-11-14):
+  the gap rule's species calls, and
   also species at >= 98% with the same 4-edit gap, flagged `tentative`.
   It names intraspecific variants the 99% floor leaves at genus (the
   goat line of *T. circumcincta*, §5.3) at the cost of more names for
-  missing species (§6.1). `gap` stays the confident call.
+  missing species (§6.1). Reports lead with it; `gap` stays the
+  confident call beside it.
 - **What it reports**: identity, ties and gap, and two columns that say
   how close a call that stopped short came. `nearest` is the tied
   species and their identity; `next` is the nearest other species and
@@ -1131,8 +1133,9 @@ rule names nearly as many (98-99%) with half IdTaxa's
 over-classification. Where species may be
 missing (wildlife, new hosts, surveys), the gap rule's 3-7x lower
 over-classification matters more than its lower recall, and tentative
-calls are best read as genus. amphid should
-follow the gap rule (feedback note §5) and report `nearest` and `next`.
+calls are best read as genus. Both calls are reported, tiered as the
+headline: amphid uses the tiered rule by default with the gap rule's
+call beside it (feedback note §5) and reports `nearest` and `next`.
 
 **Joining by read length (2026-11-14).** One rule, hybrid, at every
 read length. 2x150 (the four Illumina sets, reads cut to 150): merging
