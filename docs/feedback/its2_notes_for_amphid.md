@@ -112,8 +112,10 @@ taysearae*, 14 accessions; *Hoplolaimus stephanus* -> *H. galeatus*, 33
 accessions), and three misidentified records dropped (*Ditylenchus
 dipsaci* MG384729, *Hysterothylacium amoyense* MW370925, *H. fabri*
 MW370927). 12,044 records, 1,866 named species; 131 contained pairs
-(146); 17 more records reach species read whole. Leave-one-out, gap
-rule read whole: 58.6% / 99.4% / 4.9% (v0.2.3: 58.2% / 99.3% / 5.2%).
+(146); 17 more records reach species read whole. Leave-one-out read
+whole, tiered rule: 69.7% / 99.0% / 8.4% (v0.2.3: 69.3% / 99.0% /
+8.8%); its gap-rule call: 58.6% / 99.4% / 4.9% (v0.2.3: 58.2% / 99.3% /
+5.2%).
 
 ## What changed in v0.2.3
 
@@ -340,7 +342,7 @@ exact match, 4-6 edits clear of the next).
 grade with the call, and consider requiring a minimum aligned length
 (say 150 bases) for a species call.
 
-## 5. Identity limits: use the gap rule
+## 5. Identity limits: the tiered rule, with the gap rule's call beside it
 
 The V4 limits (species 99.7% Illumina / 99.5% nanopore, genus 99.5% /
 99%, family 95%) were set for a ~400-base insert. Over a 240-base ITS2,
@@ -353,7 +355,9 @@ A leave-one-out test (DESIGN §6.1; 3,225 queries, 1,231 species, on
 v0.2.1) shows identity alone is the wrong
 measure. Under the V4 limits only 19.3% of reads whose species is in
 the database are named to species. What separates a right call from a
-wrong one is the margin to the next species. Recommended rule:
+wrong one is the margin to the next species. The default is the
+tiered rule: the gap rule's call, the confident one, and a tentative
+species beside it (below). The gap rule:
 
 - **species**: >= 99% identity over the span AND the best reference of
   any other species is >= 4 edits further off (same span); or an exact
@@ -376,8 +380,8 @@ species is missing from the database.
 | Rule (whole reads) | Species recall | Species precision | Genus recall | Genus precision | Over-classification |
 |---|---:|---:|---:|---:|---:|
 | V4 limits | 19.3% | 94.7% | 51.8% | 99.3% | 1.8% |
-| gap rule | 57.9% | 99.3% | 89.8% | 99.4% | 5.5% |
-| tiered: gap rule + tentative species at >= 98% | 68.9% | 99.0% | 89.8% | 99.4% | 9.1% |
+| tiered (default): gap rule + tentative species at >= 98% | 68.9% | 99.0% | 89.8% | 99.4% | 9.1% |
+| gap rule (the confident call) | 57.9% | 99.3% | 89.8% | 99.4% | 5.5% |
 | dada2 assignTaxonomy, for scale | 86.5% | 95.6% | 97.6% | 99.3% | 39.3% |
 | DECIPHER IdTaxa, for scale | 79.6% | 97.4% | 94.2% | 99.5% | 19.7% |
 
@@ -395,9 +399,8 @@ same 4-edit gap, as a flagged *tentative* species call gains 11 points
 of recall for 4 of over-classification, and on real data names the goat
 line of *T. circumcincta*, *Oe. venulosum* and *Oe. radiatum* reads held
 at genus (Francis & Šlapeta, 2x250 hybrid: 95.7% to 99.4% of reads to
-species, v0.2.0). Keep
-the gap rule's call as the confident one and report the tentative call
-beside it: a read 1-2% from its own species looks the same as one 1-2%
+species, v0.2.0). Report the tiered call as the headline and keep
+the gap rule's call beside it as the confident one (amphid #20 does): a read 1-2% from its own species looks the same as one 1-2%
 from a missing sister, which is what tentative kangaroo *Cloacina* calls
 may be. `bin/classify_asvs.py` writes `tiered_rank`, `tiered_name` and
 `tentative`. On the Francis & Šlapeta goats this brings the goat line
