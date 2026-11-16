@@ -317,7 +317,11 @@ def margins(fasta, seqs, tax, geoms, workers, skip=frozenset()):
     strongylid records; a
     candidate must chain matches over half the SHORTER record, so a
     partial still finds the complete records it sits inside. Records in
-    skip (informal names) are never a candidate."""
+    skip (informal names) are never a candidate, nor is an unnamed record
+    (hybrid, cf., "s.l."): as in the classifier's gap, a record naming no
+    species is not another species unless its members name two (shared).
+    v0.2.4 tied C. rudolphii to a "C. rudolphii A x C. rudolphii B"
+    record and A. pegreffii to an "A. simplex s.l." one."""
     p = subprocess.Popen(["minimap2", "-t", str(workers), "-X", "-k", "11", "-w", "5",
                           "-f", "1000000", "-N", "2000", "-p", "0.5", fasta, fasta],
                          stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
@@ -328,7 +332,7 @@ def margins(fasta, seqs, tax, geoms, workers, skip=frozenset()):
         if m < 0.5 * min(int(f[1]), int(f[6])):
             continue
         for a, b in ((q, t), (t, q)):
-            if b in skip:
+            if b in skip or tax[b]["species_status"] == "unnamed":
                 continue
             if tax[a]["deepest_rank"] == "species" and tax[b]["species"] != tax[a]["species"]:
                 cand[a].add(b)
@@ -857,6 +861,9 @@ def main() -> int:
     geoms = [windows(r) for r in read_lengths]
     informal_ids &= set(seqs)
     marg = margins(os.path.join(out, "refdb.fasta"), seqs, tax, geoms, a.workers, informal_ids)
+    # Nor is an unnamed record another record's evidence in a window group
+    # (see margins).
+    loose = informal_ids | {rid for rid, t in tax.items() if t["species_status"] == "unnamed"}
     # A contained pair is 0 edits apart read whole (and through windows that
     # see both records whole): margins() finds such a pair through minimap2,
     # and this makes sure of it.
@@ -906,7 +913,7 @@ def main() -> int:
         by, by_formal = collections.defaultdict(list), collections.defaultdict(list)
         for rid, k in key.items():
             by[k].append(rid)
-            if rid not in informal_ids:
+            if rid not in loose:
                 by_formal[k].append(rid)
         gid = {k: "W_" + hashlib.sha1(k.encode()).hexdigest()[:12] for k in by}
         table = f"resolution_illumina_{read_len}x{read_len}.tsv"
@@ -914,7 +921,7 @@ def main() -> int:
         with open(os.path.join(out, table), "w") as fh:
             fh.write("id\twindow_group\trecords_in_group\tdeepest_rank\tname\tgrade\tmargin\n")
             for rid in order:
-                ids = by[key[rid]] if rid in informal_ids else by_formal[key[rid]]
+                ids = by[key[rid]] if rid in loose else by_formal[key[rid]]
                 win, t = tied(rid, 1 + gi)
                 ill_tied += t
                 # Never deeper than read whole: fold in the whole-read call.

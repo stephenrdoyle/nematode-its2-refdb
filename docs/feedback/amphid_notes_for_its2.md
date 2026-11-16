@@ -87,39 +87,60 @@ differently. The benchmark takes any span-scored release
 (`--release`, `--families`, `--error-model`). It could be run as a
 release check alongside the leave-one-out, if useful.
 
-## 4. `deepest_rank` is stricter than the gap rule in places
+## 4. `deepest_rank` and the gap rule: they agree (answered)
 
-In the benchmark's whole-release run, 7 of 585 species calls on
-in-database sources rested on a record that `resolution_nanopore.tsv`
-says resolves only to genus. All 7 calls were right; in the strongylid
-run it was 4. Most are exact matches at a 2-3 edit gap, which GAP_EXACT
-names and the resolution table, by its margin, does not. Capping
-amphid's calls at `deepest_rank` would have removed 10 wrong calls on
-held-out species but lost these correct ones, so amphid does not cap.
+This point first said `deepest_rank` was stricter than the exact-match
+clause, from 7 of 585 in-database species calls in the benchmark that
+rested on a record `resolution_nanopore.tsv` stops at genus. That was
+wrong in two ways:
 
-**For the database:** if `deepest_rank` is meant to say what a read of
-that record can be named, it could take the exact-match clause into
-account, so the table and the classifier agree. As it stands, amphid
-reports `deepest_rank` beside the call (`db_resolution`) but does not
-use it.
+- **All 7 records were tied (margin 0), not 2-3 edits off.** The run
+  used v0.2.0, which has no `contained_in` / `contains`, so amphid
+  could not yet stop contained pairs at genus (#18 needs v0.2.2+). Run
+  again on v0.2.4, the same benchmark has 1 such call in 590. That one
+  is an amphid matter: an *H. fabri* record lies inside a shared record
+  (four *H. fabri* members, one *H. sinense*, one *H. hainanense*), and
+  amphid reported no other species close. The table is right there.
+- **`deepest_rank` is looser than the classifier, not stricter.** A
+  record resolves to species at any margin of 1 or more ("distinct from
+  every other species' record", §5.1); the classifier needs a gap of 4,
+  or 2 for an exact match. That is by design, so the table is unchanged.
 
-## 5. *Trichostrongylus retortaeformis* in a sheep sample
+One real disagreement did turn up. The classifier's gap ignores unnamed
+records (hybrids, cf., "s.l."), but the margins and resolution tables
+counted them. 252 records took their whole-read margin from an unnamed
+record. Recomputed without them, 228 margins change (222 upward), and 2
+records tied at 0 come untied, which had stopped at genus:
 
-Under the exact-match clause, S-BSST527 sample HRG14-014 gets 30 of
-2,101 reads named *T. retortaeformis*. The consensus is an exact match
-to the release's *T. retortaeformis* records (ASV00141/ASV00123 in the
-DADA2 run), 3 edits from *T. vitrinus*. `classify_asvs.py` names the same
-sequences *T. retortaeformis* too, so the two classifiers agree. The
-paper did not report it.
+- *Contracaecum rudolphii*, tied to "*C. rudolphii* A x *C. rudolphii*
+  B"; its margin becomes 4 or more.
+- *Anisakis pegreffii*, tied to "*A. simplex* s.l."; its margin becomes 1.
 
-It is usually a lagomorph parasite, so the call deserves a look. The 11
-records behind the name, mostly the KC5213xx series, look well
-supported.
+`bin/build.py` now leaves unnamed records out of the margins and the
+window groups, as the classifier does (DESIGN §5). That takes effect in
+the next release.
 
-**For the database:** only a question. Is a 3-edit gap to *T. vitrinus*
-enough to name this pair? If there is reason to think not, a
-pair-specific note or margin would let both classifiers stop at genus
-here.
+## 5. *Trichostrongylus retortaeformis* in sheep samples (answered)
+
+The call stands. Every consensus named *T. retortaeformis* in S-BSST527
+is an exact match to one of two records: ITS2_69d80da5ab27 or
+ITS2_7939ce88afeb. That happens in five samples, HRG14-014, -125, -126
+and -127 and HRG15-032, at 10-25 reads each. The nearest other species
+is 3 edits off, *T. vitrinus*. ITS2_69d80da5ab27 holds three isolates
+from lagomorphs, on two continents: KC521376 (hare) and KC521392
+(hare), from a study of ovine nematodes in wild Australian lagomorphs
+(Vet Parasitol 197:370, 2013), and PV439847 (*Lepus europaeus*,
+2025). ITS2_7939ce88afeb holds JX046418 and KC521404 (rabbits, same
+study). The records are sound and the gap is what the exact-match
+clause allows: in the leave-out benchmark every exact match it named at
+a 2-3 edit gap was right. A margin specific to this pair would have
+nothing to rest on. No curation change.
+
+The same records do something else in this dataset. They are the "next
+species" that holds many *T. vitrinus* consensus at genus. Those
+consensus sit 4 edits from their *T. vitrinus* record and 2 from
+*T. retortaeformis*. That is the gap rule working as intended: such a
+sequence is nearly as close to either species.
 
 ## 6. Nanopore NC1/NC2 data: none public that we could find
 

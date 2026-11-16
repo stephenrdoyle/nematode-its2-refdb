@@ -263,7 +263,16 @@ same effect dropped pairs in vespa-18s-refdb's neighbour check.)
   another species - a read matching it could be either - but ignores an
   unnamed one, which says nothing about which species a read is from.
   Before this, three hybrid records cut species calls in a cattle set
-  from 87% to 35%.
+  from 87% to 35%. The margins and the resolution tables follow the
+  same rule from the release after v0.2.4: an unnamed record is never
+  the nearest other species, nor another record's evidence in a window
+  group. Through v0.2.4 they counted it: 252 records took their
+  whole-read margin from an unnamed record. Recomputed on v0.2.4's
+  records without them, 228 margins change, 222 of them upward, and
+  two leave 0. Those two were stopped at genus where the classifier
+  names them. One was *Contracaecum
+  rudolphii*, tied to a "*C. rudolphii* A x *C. rudolphii* B" record,
+  and the other *Anisakis pegreffii*, tied to an "*A. simplex* s.l." one.
 - **Windows never resolve deeper than whole**: the build stops if any
   would. The first run did stop. A record already at genus was named to
   species through a window group, because a blank species was read as
