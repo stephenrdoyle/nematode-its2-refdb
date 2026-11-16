@@ -103,6 +103,19 @@ Every point of the recipe is now in amphid, the denoiser aside.
 amphid's own account of each step, with the measurements, is its
 `docs/REFERENCE_DATABASE.md` §12 and `docs/CONTRACTS.md`.
 
+## What changed in v0.2.5
+
+**The format did not change.** In `species_margins.tsv` and the
+resolution tables an unnamed record (hybrid, cf., "s.l.") is no longer
+another species (your notes 4 and 5). Every hybrid-labelled record is
+dropped (24 records), and 33 *Hysterothylacium* accessions behind most
+of your leave-out benchmark's wrong calls (*H. fabri* for *H. aduncum*,
+*H. zhoushanense* for *H. amoyense*; `docs/curation_hysterothylacium_2026-11.md`);
+*H. sinense* and *H. liparis* share an ITS2, so the benchmark could count
+that pair as indistinguishable. 14 other misidentified accessions
+dropped; GenBank update refetched 2026-11-16 (68 new records). 12,041
+records, 1,864 named species.
+
 ## What changed in v0.2.4
 
 **The format did not change.** **Curation** of the contained pairs

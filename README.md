@@ -14,7 +14,7 @@ counterpart of [vespa-18s-refdb](https://github.com/stephenrdoyle/vespa-18s-refd
 writes the same release format, and is consumed by
 [amphid](https://github.com/stephenrdoyle/nf-amphid-pipeline).
 
-**Status: v0.2.4 (2026-11-15).** v0.1.0 was the first release. See
+**Status: v0.2.5 (2026-11-16).** v0.1.0 was the first release. See
 [docs/DESIGN.md](docs/DESIGN.md) for the design and the measurements
 behind it, and [docs/feedback/its2_notes_for_amphid.md](docs/feedback/its2_notes_for_amphid.md)
 for what amphid needs to change to use it, and
@@ -25,10 +25,10 @@ for what amphid's runs have shown about the database. DADA2 and IdTaxa users: se
 ## Download and verify
 
 ```bash
-V=v0.2.4
+V=v0.2.5
 curl -LO https://github.com/stephenrdoyle/nematode-its2-refdb/releases/download/$V/nemits2_$V.tar.gz
 shasum -a 256 nemits2_$V.tar.gz
-# bfefebcdd89cb4535dd07061fd9500c852089c04c8d6b0ce7fe5064d0b3545a5
+# 9e1639c5f510156cf24cbe6d5286f8d88a87bc453a441b0607c36cc64149df49
 tar -xzf nemits2_$V.tar.gz
 ```
 
@@ -49,78 +49,105 @@ record anchored at both ends: `complete`, `near_complete` (>= 98%),
 `partial_90`, `partial_75`, `partial`, or `unmeasured` (no relative at
 >= 80% identity).
 
-## v0.2.4
+## v0.2.5
 
-12,044 records and 1,866 named species (425 genera), from the same
-sources as v0.2.3: curation of the contained pairs within a genus. The
-release format is v0.2.3's. Against v0.2.3: 12,048 records, 1,869 named
-species; 131 contained pairs in 46 species pairs (146, 53); 17 more
-records named to species read whole and 18 more through 2x150 windows;
-`counts.relabelled` 97 (49).
+12,041 records and 1,864 named species (425 genera), from the same
+backbone, a GenBank update refetched on 2026-11-16, and a curation pass.
+The release format is v0.2.4's. Against v0.2.4: 12,044 records, 1,866
+named species; 122 contained pairs in 41 species pairs (131, 46);
+`counts.member_roles.dropped` 851 (894).
 
-Curation of the within-genus contained pairs (`docs/curation_contained_pairs_2026-11.md`):
-- *Globodera achilleae* (AY599498) relabelled *G. millefolii*, its senior synonym (Subbotin et al. 2011); identical to *G. millefolii* from the type host and region.
-- *Heterorhabditis sonorensis* (14 accessions) relabelled *H. taysearae*, its senior synonym (Dhakal et al. 2021).
-- *Hoplolaimus stephanus* (33 accessions) relabelled *H. galeatus*, its senior synonym (Subbotin et al. 2025).
-- *Ditylenchus dipsaci* MG384729 dropped: it carries the *D. weischeri* ITS2 and is 13 edits from every other *D. dipsaci* record.
-- *Hysterothylacium amoyense* MW370925 dropped: it carries the *H. fabri* ITS2 and is 97 edits from every other *H. amoyense* record.
-- *Hysterothylacium fabri* MW370927 dropped: it carries the *H. thalassini* ITS2 and is 104 edits from every other *H. fabri* record.
-- In the coherence screen, six fewer `closer` calls and four fewer
-  `displaced`; one new `closer`: the merged *G. millefolii* record, with
-  AF161004 (*G. millefolii*) 43 edits off it, left for a later look.
-- **Leave-one-out** (3,220 queries, 1,226 species), read whole: tiered
-  rule (the default) 69.7% species recall, 99.0% precision, 8.4%
-  over-classification (v0.2.3: 69.3%, 99.0%, 8.8%); its gap-rule call
-  58.6%, 99.4%, 4.9% (v0.2.3: 58.2%, 99.3%, 5.2%).
+- **GenBank update refetched** (`sources/genbank_update_20261116_carried`):
+  68 records new since 13 November. Records the earlier fetch also holds
+  keep that fetch's ITS2 region (`bin/carry_update_regions.py`), so a
+  newer reference build does not move records in or out. 10 source
+  records gained (*Gnathostoma* 3, *Bursaphelenchus* 2, *Ditylenchus*,
+  *Paralibyostrongylus*, *Steinernema*, *Caenorhabditis*, *Meloidogyne*),
+  none lost.
+- **An unnamed record is not another species** ([#18](https://github.com/stephenrdoyle/nematode-its2-refdb/pull/18)). In
+  `species_margins.tsv` and the resolution tables, a hybrid, cf. or
+  "s.l." record is no longer the nearest other species, as in the
+  classifier's gap; a record shared between two named species still is.
+  v0.2.4 tied *Contracaecum rudolphii* to a "*C. rudolphii* A x B"
+  record and *Anisakis pegreffii* to an "*A. simplex* s.l." one.
+- **Hybrid records dropped** (27 accessions, 24 records): *Haemonchus
+  contortus* x *H. placei* (23), *Anisakis simplex* x *A. pegreffii* (3),
+  *Contracaecum rudolphii* A x B. ITS2 is multicopy: a hybrid's sequence
+  is a copy from one parent, and its record could only ever give a
+  genus call.
+- ***Hysterothylacium*** (`docs/curation_hysterothylacium_2026-11.md`;
+  33 accessions dropped, nearly all from one unpublished *Collichthys
+  lucidus* study). A ~280-base lineage filed under four names (23
+  accessions) is the study's own "*Raphidascaris* sp.": with the
+  mislabels gone, its 71 *Raphidascaris* sp. accessions enter as 44
+  informal records, named to genus. Also dropped: records carrying
+  another species' ITS2 (MW370746, MW370888, MW370897, MW370898,
+  MW370903, MW370934), records nothing lies near (MW370702, MW370546,
+  MW370885), and MW413285 (*H. zhoushanense*, 3 edits from *H.
+  amoyense*). An *H. sinense* and an *H. aduncum* record held at genus
+  by a mislabelled member now reach species. *H. sinense* and *H.
+  liparis* share an ITS2 and stay tied.
+- **Other misidentifications dropped** (14 accessions): *Globodera*
+  AF161003-4 (a *Cactodera*-like ITS2); *Cactodera estonica* MN658364,
+  MW821355-6 (the *C. xinanensis* type ITS2); *Heterakis isolonche*
+  KM212953 (= *H. dispar*); four *Paratylenchus nanus*/*projectus* from
+  one submitter; *Steinernema borjomiense* LT984409-10; two Iranian
+  *Oscheius shamimi* 83 edits from the species' redescription.
+- **Checked, no change:** *Haemonchus placei* records against short
+  reads of an *H. placei* genome (SRR24442206; docs/DESIGN.md §8).
+- Coherence screen: `displaced` 17 (26), `stray` 167 (170), `closer`
+  379 (395). One new `closer`: *Cactodera estonica* HM560732, 7 edits
+  from *C. xinanensis* and 10 from its own species, left.
+- **Leave-one-out:** pending (the v0.2.4 figures below still stand).
 
 Earlier releases: [docs/RELEASES.md](docs/RELEASES.md).
 
 <!-- figures:start -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/grade_dark.svg">
-  <img alt="Bar chart: records per nematode group in nemits2_v0.2.4, by how much of the ITS2 they hold: I · animal parasites 446 (complete 49, near complete 186, partial 59, unmeasured 152); I · plant parasites 167 (complete 0, near complete 0, partial 0, unmeasured 167); I · free-living 16 (complete 2, near complete 2, partial 0, unmeasured 12); II · plant parasites 56 (complete 0, near complete 0, partial 0, unmeasured 56); II · free-living 19 (complete 1, near complete 0, partial 0, unmeasured 18); III · animal parasites 2,139 (complete 855, near complete 695, partial 367, unmeasured 222); IV · animal parasites 784 (complete 178, near complete 244, partial 140, unmeasured 222); IV · plant parasites 4,351 (complete 2,310, near complete 914, partial 508, unmeasured 619); IV · free-living 50 (complete 18, near complete 9, partial 8, unmeasured 15); V · animal parasites 3,628 (complete 1,175, near complete 1,469, partial 713, unmeasured 271); V · free-living 370 (complete 246, near complete 50, partial 36, unmeasured 38); Other Chromadoria · free-living 16 (complete 0, near complete 0, partial 0, unmeasured 16); Family not placed 2 (complete 2, near complete 0, partial 0, unmeasured 0)." src="docs/figures/grade_light.svg" width="760">
+  <img alt="Bar chart: records per nematode group in nemits2_v0.2.5, by how much of the ITS2 they hold: I · animal parasites 446 (complete 49, near complete 186, partial 59, unmeasured 152); I · plant parasites 167 (complete 0, near complete 0, partial 0, unmeasured 167); I · free-living 16 (complete 2, near complete 2, partial 0, unmeasured 12); II · plant parasites 56 (complete 0, near complete 0, partial 0, unmeasured 56); II · free-living 19 (complete 1, near complete 0, partial 0, unmeasured 18); III · animal parasites 2,161 (complete 880, near complete 694, partial 365, unmeasured 222); IV · animal parasites 783 (complete 177, near complete 244, partial 139, unmeasured 223); IV · plant parasites 4,346 (complete 2,307, near complete 914, partial 504, unmeasured 621); IV · free-living 50 (complete 18, near complete 9, partial 8, unmeasured 15); V · animal parasites 3,609 (complete 1,176, near complete 1,449, partial 713, unmeasured 271); V · free-living 370 (complete 248, near complete 50, partial 36, unmeasured 36); Other Chromadoria · free-living 16 (complete 0, near complete 0, partial 0, unmeasured 16); Family not placed 2 (complete 2, near complete 0, partial 0, unmeasured 0)." src="docs/figures/grade_light.svg" width="760">
 </picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/taxa_dark.svg">
-  <img alt="Bar chart: records per nematode group in nemits2_v0.2.4, and how many resolve to species read whole: I · animal parasites 446 (365 to species); I · plant parasites 167 (167 to species); I · free-living 16 (16 to species); II · plant parasites 56 (56 to species); II · free-living 19 (19 to species); III · animal parasites 2,139 (1,925 to species); IV · animal parasites 784 (691 to species); IV · plant parasites 4,351 (3,994 to species); IV · free-living 50 (42 to species); V · animal parasites 3,628 (3,347 to species); V · free-living 370 (296 to species); Other Chromadoria · free-living 16 (14 to species); Family not placed 2 (0 to species)." src="docs/figures/taxa_light.svg" width="760">
+  <img alt="Bar chart: records per nematode group in nemits2_v0.2.5, and how many resolve to species read whole: I · animal parasites 446 (365 to species); I · plant parasites 167 (167 to species); I · free-living 16 (16 to species); II · plant parasites 56 (56 to species); II · free-living 19 (19 to species); III · animal parasites 2,161 (1,909 to species); IV · animal parasites 783 (691 to species); IV · plant parasites 4,346 (3,993 to species); IV · free-living 50 (42 to species); V · animal parasites 3,609 (3,348 to species); V · free-living 370 (294 to species); Other Chromadoria · free-living 16 (14 to species); Family not placed 2 (0 to species)." src="docs/figures/taxa_light.svg" width="760">
 </picture>
 
-How many species nemits2_v0.2.4 can name. A species named in the source records but with no record of its own shares its ITS2 with another species (or sits inside another species' record over its span), so a read from it is named only to genus or above. Names are counted as written.
+How many species nemits2_v0.2.5 can name. A species named in the source records but with no record of its own shares its ITS2 with another species (or sits inside another species' record over its span), so a read from it is named only to genus or above. Names are counted as written.
 
 | Records | Species named in sources | Species with their own record (read whole) | Species named through Illumina 150x150 | Species named through Illumina 250x250 | Species named through Illumina 300x300 | Genera |
 |---|---:|---:|---:|---:|---:|---:|
-| All records | 2,432 | 1,844 | 1,838 | 1,844 | 1,844 | 439 |
+| All records | 2,553 | 1,845 | 1,840 | 1,845 | 1,845 | 439 |
 | **I · animal parasites** | 94 | 33 | 33 | 33 | 33 | 6 |
 | I · plant parasites | 65 | 65 | 64 | 65 | 65 | 3 |
 | I · free-living | 10 | 10 | 10 | 10 | 10 | 9 |
 | II · plant parasites | 18 | 18 | 18 | 18 | 18 | 2 |
 | II · free-living | 9 | 9 | 9 | 9 | 9 | 6 |
-| **III · animal parasites** | 397 | 291 | 286 | 291 | 291 | 104 |
-| **IV · animal parasites** | 225 | 149 | 149 | 149 | 149 | 13 |
-| IV · plant parasites | 804 | 645 | 645 | 645 | 645 | 94 |
+| **III · animal parasites** | 514 | 291 | 287 | 291 | 291 | 104 |
+| **IV · animal parasites** | 226 | 150 | 150 | 150 | 150 | 13 |
+| IV · plant parasites | 805 | 646 | 646 | 646 | 646 | 94 |
 | IV · free-living | 29 | 21 | 21 | 21 | 21 | 13 |
-| **V · animal parasites** | 619 | 500 | 500 | 500 | 500 | 161 |
-| V · free-living | 157 | 102 | 102 | 102 | 102 | 25 |
+| **V · animal parasites** | 620 | 500 | 500 | 500 | 500 | 161 |
+| V · free-living | 158 | 101 | 101 | 101 | 101 | 25 |
 | Other Chromadoria · free-living | 2 | 1 | 1 | 1 | 1 | 2 |
 | Family not placed | 3 | 0 | 0 | 0 | 0 | 1 |
 
-How far a record can be named in nemits2_v0.2.4, best case (an exact read, no sequencing error): the share of records resolving to species, and to genus at best.
+How far a record can be named in nemits2_v0.2.5, best case (an exact read, no sequencing error): the share of records resolving to species, and to genus at best.
 
 | Records | Nanopore (whole ITS2): species | genus | Illumina 150x150: species | genus | Illumina 250x250: species | genus | Illumina 300x300: species | genus |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| All records (12,044) | 91% | 9% | 89% | 10% | 91% | 9% | 91% | 9% |
+| All records (12,041) | 91% | 9% | 89% | 11% | 91% | 9% | 91% | 9% |
 | **I · animal parasites** (446) | 82% | 18% | 76% | 24% | 81% | 19% | 82% | 18% |
 | I · plant parasites (167) | 100% | 0% | 99% | 1% | 100% | 0% | 100% | 0% |
 | I · free-living (16) | 100% | 0% | 100% | 0% | 100% | 0% | 100% | 0% |
 | II · plant parasites (56) | 100% | 0% | 100% | 0% | 100% | 0% | 100% | 0% |
 | II · free-living (19) | 100% | 0% | 100% | 0% | 100% | 0% | 100% | 0% |
-| **III · animal parasites** (2,139) | 90% | 10% | 86% | 14% | 90% | 10% | 90% | 10% |
-| **IV · animal parasites** (784) | 88% | 12% | 88% | 12% | 88% | 12% | 88% | 12% |
-| IV · plant parasites (4,351) | 92% | 8% | 91% | 9% | 92% | 8% | 92% | 8% |
+| **III · animal parasites** (2,161) | 88% | 11% | 85% | 15% | 88% | 12% | 88% | 11% |
+| **IV · animal parasites** (783) | 88% | 12% | 88% | 12% | 88% | 12% | 88% | 12% |
+| IV · plant parasites (4,346) | 92% | 8% | 91% | 9% | 92% | 8% | 92% | 8% |
 | IV · free-living (50) | 84% | 16% | 84% | 16% | 84% | 16% | 84% | 16% |
-| **V · animal parasites** (3,628) | 92% | 8% | 92% | 8% | 92% | 8% | 92% | 8% |
-| V · free-living (370) | 80% | 20% | 80% | 20% | 80% | 20% | 80% | 20% |
+| **V · animal parasites** (3,609) | 93% | 7% | 92% | 8% | 93% | 7% | 93% | 7% |
+| V · free-living (370) | 79% | 21% | 79% | 21% | 79% | 21% | 79% | 21% |
 | Other Chromadoria · free-living (16) | 88% | 12% | 88% | 12% | 88% | 12% | 88% | 12% |
 | Family not placed (2) | 0% | 50% | 0% | 50% | 0% | 50% | 0% | 50% |
 <!-- figures:end -->
@@ -140,8 +167,8 @@ count as plant parasites. A record whose span sits exactly inside
 another species' record is tied with it and stops at the rank they share;
 `taxonomy.tsv`'s `contained_in` and `contains` name the other record.
 
-Most species-level records are close to another species: 690 at one
-edit, 522 at two, 258 tied (`species_margins.tsv`, read whole), over a median ITS2 of
+Most species-level records are close to another species: 658 at one
+edit, 484 at two, 242 tied (`species_margins.tsv`, read whole), over a median ITS2 of
 240 bases. At that length amphid's 99.7% species limit allows no
 mismatch at all.
 

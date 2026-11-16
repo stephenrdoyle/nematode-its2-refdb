@@ -1,0 +1,171 @@
+{
+ "name": "nemits2_v0.2.5",
+ "version": "v0.2.5",
+ "built": "2026-11-16T20:10:03Z",
+ "code_commit": "4b4f237362e153b9ac5f8f8f58182fffdb31a9b2",
+ "marker": "ITS2 (nematodes)",
+ "primers": {
+  "forward": {
+   "name": "NC1",
+   "sequence": "ACGTCTGGTTCAGGGTTGTT"
+  },
+  "reverse": {
+   "name": "NC2",
+   "sequence": "TTAGTTTCTTTTCCTCCGCT"
+  },
+  "reference": "Gasser et al. 1993, Nucleic Acids Res 21:2525"
+ },
+ "insert": "from the 3' end of NC1 to the start of the 28S stretch before NC2; primers and the ~47-base 28S stretch not included",
+ "score_over": "the reference's own span (a read's 28S stretch counts neither for nor against)",
+ "illumina_geometries": [
+  {
+   "read_length": 150,
+   "windows": [
+    130,
+    83
+   ],
+   "file": "resolution_illumina_150x150.tsv",
+   "window_groups": 11232
+  },
+  {
+   "read_length": 250,
+   "windows": [
+    230,
+    183
+   ],
+   "file": "resolution_illumina_250x250.tsv",
+   "window_groups": 11977
+  },
+  {
+   "read_length": 300,
+   "windows": [
+    280,
+    233
+   ],
+   "file": "resolution_illumina_300x300.tsv",
+   "window_groups": 12035
+  }
+ ],
+ "anchors": {
+  "i5_inner_anchor": "TCGTCGGCAGCGTC",
+  "i7_inner_anchor": "CCGAGCCCACGAGAC"
+ },
+ "lookalike_max_edits": 3,
+ "source": "nemabiome_20260317",
+ "source_taxonomy_sha256": "892a6e4bc0bcc9125450f79d05571d2453aa0507426311ec688bcc911b24ae5d",
+ "layers": [
+  {
+   "file": "long_read_its2.tsv",
+   "sha256": "60c009ad0fca4fc87cdd57a17639d5ccca50adefa137e11d41e6efc736da276a"
+  }
+ ],
+ "names": {
+  "file": "ncbi_names.tsv",
+  "sha256": "55ab37cbdf3e6bf96c2e7a6d01504db8c072f4f6f24469d94ea70522f3af8aa1"
+ },
+ "lineages": {
+  "file": "lineages.tsv",
+  "sha256": "8ed6d9ed7ec45aa9a156253223c8c3d1dbd25e2b36ea0b3719c9e34bc518e51b"
+ },
+ "counts": {
+  "records": 12041,
+  "members": 18033,
+  "named_species": 1864,
+  "lineage_records": {
+   "Trichostrongylus: Trichostrongylus sp. SMNPOL32R": 1,
+   "Necator: Necator sp. type II": 28,
+   "Oesophagostomum: Oesophagostomum sp. 3341_CEB_CAM / 9800_CEB_CAM_A_OH13": 1,
+   "Cloacina: Cloacina sp. 1 AJ-2019": 1,
+   "Cloacina: Cloacina sp. 3 AJ-2019": 1,
+   "Trichostrongylus: Trichostrongylus sp. 1 SS-2018": 1,
+   "Necator: Necator sp. type III": 1,
+   "Oesophagostomum: Oesophagostomum sp. OTU_152": 1,
+   "Oesophagostomum: Oesophagostomum sp. 30_S2-29ZYO": 1,
+   "Oesophagostomum: Oesophagostomum sp. 9800_CEB_CAM_B_OH14": 1,
+   "Teladorsagia circumcincta: goat line": 2,
+   "Trichostrongylus: Trichostrongylus sp. SMNPGL33R": 1,
+   "Oesophagostomum: Oesophagostomum sp. 3335_MDR_CAM_OH15": 1,
+   "Oesophagostomum: Oesophagostomum sp. ASV_40": 1,
+   "Oesophagostomum: Oesophagostomum sp. ASV_12": 1,
+   "Oesophagostomum: Oesophagostomum sp. OTU_180": 1,
+   "Oesophagostomum: Oesophagostomum sp. MC-2015": 1,
+   "Trichostrongylus: Trichostrongylus sp. SMNPOL33R": 1,
+   "Oesophagostomum: Oesophagostomum sp. 29_S2-217OLI / 31_S2-324COC": 1,
+   "Oesophagostomum: Oesophagostomum sp. OTU_142": 1,
+   "Trichostrongylus: Trichostrongylus sp. 2 SS-2018": 1,
+   "Cloacina: Cloacina sp. 4 AJ-2019": 1
+  },
+  "grade": {
+   "near_complete": 3548,
+   "partial": 543,
+   "complete": 4860,
+   "unmeasured": 1809,
+   "partial_75": 516,
+   "partial_90": 765
+  },
+  "deepest_rank_nanopore": {
+   "species": 10914,
+   "genus": 1117,
+   "family": 9,
+   "order": 1
+  },
+  "folded": 1207,
+  "folded_weak": 808,
+  "renamed": 64,
+  "relabelled": 97,
+  "update_unanchored": 3280,
+  "dropped_partials": 0,
+  "informal_records": 795,
+  "contained": {
+   "record_pairs": 122,
+   "species_pairs": 41,
+   "records": 143,
+   "pairs_with_partial": 42,
+   "cross_genus_pairs": 0
+  },
+  "informal_left_out": 643,
+  "member_roles": {
+   "dropped": 851,
+   "kept": 17182
+  },
+  "conflicts": {},
+  "primer_fit": {
+   "unknown": 2816,
+   "one_site": 7365,
+   "poor": 1210,
+   "exact": 242,
+   "near": 408
+  }
+ },
+ "files": {
+  "anchor_lookalikes.tsv": "c0c2a935f84e65328c32e195ad405b4ca7856876ff9ec7957491d7895ca2b4b8",
+  "conflicts.tsv": "984a644ec3b56d32b0404777e1eb73390c4b0742a6a0e183f07861056b6746de",
+  "members.tsv": "5b42ed49ef92efa99ea7f77318107c897002d2ea15d0e7680b63f18dbdcd9555",
+  "primer_fit.tsv": "11d529a05eb4bcc24d26b97a673db23c2fb0a92d38624c84fe0c98b86fa4b885",
+  "refdb.fasta": "4a1844ac59c73770f33b9d4527b18c0be8236c8af705aa63c9437d56232c4ab7",
+  "resolution_illumina_150x150.tsv": "0b6416af6cfa9f9b56db68cac2a1f25aa23da5f6fc6cf64550e37c9f5dc7719b",
+  "resolution_illumina_250x250.tsv": "f046516022075a2a8e49465001e5185be57abab73f666b2ff4a5d28400b15788",
+  "resolution_illumina_300x300.tsv": "468a7d5841df0380e6f9e7b9b3ae8da825c43930b528fb18149b05a7e79c2b68",
+  "resolution_nanopore.tsv": "08eb3b37d142ddfb5d40c77105465b0d1aa2f822330e2dc11a8930cbd3d5a4ba",
+  "species_margins.tsv": "600aa551c4c464fda704b680836577799398fd787bbad7b2c77bab3769282d49",
+  "taxonomy.tsv": "2eb97abfdd95baf5cd32b189fe04df1dcb89e851d928843e7b0207a271ddd01b",
+  "summary.txt": "773673e35fb452365c9c50bc1a9302a543f1a782f678e544229548a08ff476ae",
+  "nemits2_v0.2.5_dada2.fasta": "78e138491507f8aca1b672630030f70447f733ba8143f18c9f9bf8d8a0c1b8e7",
+  "nemits2_v0.2.5_idtaxa.RData": "5b71412d004cf72f81c6c6b50720df0d7d4a4fdfc788e1cd78a8dc594e419d7c",
+  "trim_28s.R": "86b998c93630a9c5cf27b7256871ce9430da8b651f6a44e9c11392d3bdf0bc94"
+ },
+ "kmer": {
+  "files": [
+   "nemits2_v0.2.5_dada2.fasta",
+   "nemits2_v0.2.5_idtaxa.RData",
+   "trim_28s.R"
+  ],
+  "made_with": {
+   "R": "4.5.0",
+   "dada2": "1.38.0",
+   "DECIPHER": "3.6.0"
+  },
+  "idtaxa": "LearnTaxa on the dada2 reference; IdTaxa(strand = 'both', threshold = 60) as nemabiome.ca runs it",
+  "asvs": "cut with trim_28s.R before classifying"
+ }
+}

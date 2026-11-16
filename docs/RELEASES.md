@@ -4,6 +4,30 @@ Release notes for nemits2 releases before the current one, newest first.
 The current release is described in the [README](../README.md); each
 release's manifest and summary are under `releases/`.
 
+## v0.2.4
+
+12,044 records and 1,866 named species (425 genera), from the same
+sources as v0.2.3: curation of the contained pairs within a genus. The
+release format is v0.2.3's. Against v0.2.3: 12,048 records, 1,869 named
+species; 131 contained pairs in 46 species pairs (146, 53); 17 more
+records named to species read whole and 18 more through 2x150 windows;
+`counts.relabelled` 97 (49).
+
+Curation of the within-genus contained pairs (`docs/curation_contained_pairs_2026-11.md`):
+- *Globodera achilleae* (AY599498) relabelled *G. millefolii*, its senior synonym (Subbotin et al. 2011); identical to *G. millefolii* from the type host and region.
+- *Heterorhabditis sonorensis* (14 accessions) relabelled *H. taysearae*, its senior synonym (Dhakal et al. 2021).
+- *Hoplolaimus stephanus* (33 accessions) relabelled *H. galeatus*, its senior synonym (Subbotin et al. 2025).
+- *Ditylenchus dipsaci* MG384729 dropped: it carries the *D. weischeri* ITS2 and is 13 edits from every other *D. dipsaci* record.
+- *Hysterothylacium amoyense* MW370925 dropped: it carries the *H. fabri* ITS2 and is 97 edits from every other *H. amoyense* record.
+- *Hysterothylacium fabri* MW370927 dropped: it carries the *H. thalassini* ITS2 and is 104 edits from every other *H. fabri* record.
+- In the coherence screen, six fewer `closer` calls and four fewer
+  `displaced`; one new `closer`: the merged *G. millefolii* record, with
+  AF161004 (*G. millefolii*) 43 edits off it, left for a later look.
+- **Leave-one-out** (3,220 queries, 1,226 species), read whole: tiered
+  rule (the default) 69.7% species recall, 99.0% precision, 8.4%
+  over-classification (v0.2.3: 69.3%, 99.0%, 8.8%); its gap-rule call
+  58.6%, 99.4%, 4.9% (v0.2.3: 58.2%, 99.3%, 5.2%).
+
 ## v0.2.3
 
 12,048 records and 1,869 named species (425 genera), from the same
