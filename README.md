@@ -324,8 +324,10 @@ S=sources/nemabiome_its2_20260317/Nematode_ITS2_20260317
 python3 bin/nemabiome_export.py sources/nemabiome_its2_20260317/raw/database.xlsx $S
 python3 bin/fetch_backbone_records.py ${S}_taxonomy_nr.txt sources/genbank_backbone/records.fasta.gz
 # GenBank records the backbone lacks, merged with it (the last release is the reference)
-U=sources/genbank_update_20261113
-python3 bin/genbank_update.py ${S}_taxonomy_nr.txt releases/nemits2_v0.1.3 2026/03/17 $U curation/genbank_named.tsv
+python3 bin/genbank_update.py ${S}_taxonomy_nr.txt releases/nemits2_v0.2.4 2026/03/17 sources/genbank_update_20261116 curation/genbank_named.tsv
+# keep the earlier fetch's ITS2 regions for records it holds, so a newer reference build does not move them
+python3 bin/carry_update_regions.py sources/genbank_update_20261113 sources/genbank_update_20261116 sources/genbank_update_20261116_carried
+U=sources/genbank_update_20261116_carried
 python3 bin/genbank_update.py merge $S sources/genbank_backbone/records.fasta.gz $U work/its2
 python3 bin/its2.py work/its2/seqs.fasta work/its2/records.fasta.gz work/its2/its2_cut
 python3 bin/informal_accessions.py work/its2/taxonomy.txt > work/its2/informal.txt   # never a partial's relative

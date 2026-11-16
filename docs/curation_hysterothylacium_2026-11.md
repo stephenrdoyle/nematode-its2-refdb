@@ -81,3 +81,20 @@ Rows 2-5 remove the records behind 18 of the 49 wrong calls: 9 + 7 + 2. The 31 *
 ## Follow-up (not proposed here)
 
 Adding the 72 independent records above to `curation/genbank_named.tsv` would give *H. sinense*, *H. liparis*, *H. zhoushanense* and *H. amoyense* records beyond one unpublished study. They would not separate *H. sinense* from *H. liparis*.
+
+## Follow-up: the croaker study's other outliers (2026-11-16)
+
+Records 20 or more edits from their name's commonest record, checked by `span_distance` against every Raphidascarididae and Anisakidae record (development build of the 16 November update):
+
+| accession | label | finding | action |
+|---|---|---|---|
+| MW370888 | *H. fabri* | identical to three *H. sinense* (KF601896, KP301509, MW370544), making their record genus-level "shared" | drop |
+| MW370897 | *H. fabri* | identical to seven *H. aduncum* (AF115571, JQ934879-80, ...), the same effect | drop |
+| MW370934 | *H. sinense* | identical to four *H. fabri*; the only *H. sinense* in that record (it stays shared through an *H. hainanense*) | drop |
+| MW370898, MW370903 | *H. aduncum* | 1 edit from independent *H. fabri* (KF736943, JQ520158, PP029274), 40 from the nearest *H. aduncum* | drop |
+| MW370702 | *H. sinense* | one accession; nothing of any name within 37 edits | drop |
+| MW370546 | *H. sinense* | a partial (93%); 28 or more edits from everything | drop |
+| MW370643, MW370569 | *H. sinense* | 12-16 edits from *H. sinense* and *H. liparis*; nearest its own group | leave |
+| PX273803 | *H. fabri* | another study; 23 edits from its name, nearest it | leave |
+
+The first three were inside records holding several names: they caused no wrong call, but held real *H. sinense* and *H. aduncum* records at genus. The drops above (sections 2-5) and these are in `curation/overrides.tsv`. The whole study (332 accessions) was not dropped: most of it agrees with independent records, and dropping it would have left one *H. sinense* record until the 72 independent ones are added (they predate the update's date window, so they go in `curation/genbank_named.tsv` for the next fetch).

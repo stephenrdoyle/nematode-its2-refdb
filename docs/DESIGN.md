@@ -1345,7 +1345,19 @@ amphid needs changes before it can use this database:
 3. **Intraspecific variation**: within one worm, variants differ by
    1-12 edits, as much as some species do (§5.4). The long-read layer
    (§5.5) adds the variants found so far. More long-read assemblies and
-   HiFi runs would add more; *H. placei* has none yet.
+   HiFi runs would add more. *H. placei* has no long-read assembly, but
+   short-read genome data stand in for one (2026-11-16): ITS2 reads
+   pulled from SRR24442206 (PRJNA962672; NovaSeq, 62,226 ITS2 reads
+   from about three quarters of the run, median depth 29,000) show the
+   *H. placei* rDNA array, one worm or a pool. Of the 11 positions where
+   *H. contortus* differs, 10 are fixed for the *H. placei* state; the
+   eleventh (position 64 of ITS2_cda2d91f14aa) is A in 47% of copies and
+   T in 53%, A being the *H. contortus* base. The release's *H. placei*
+   records differ among themselves almost only there (and in where they
+   were trimmed), so they are this array's copies, not lineages or
+   errors; the "*H. contortus* x *H. placei*" record LC368076 (unnamed,
+   genus) is an ordinary *H. placei* ITS2 (64A, plus a rare 186A) that
+   1,441 reads match exactly. No curation change.
 4. **Contained records of the same species**: done. A partial record
    identical over its span to a full-length record of the same species is
    folded into it (`fold_contained` in `bin/build.py`): 1,115 records in
