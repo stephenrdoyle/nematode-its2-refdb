@@ -98,7 +98,10 @@ named species; 122 contained pairs in 41 species pairs (131, 46);
 - Coherence screen: `displaced` 17 (26), `stray` 167 (170), `closer`
   379 (395). One new `closer`: *Cactodera estonica* HM560732, 7 edits
   from *C. xinanensis* and 10 from its own species, left.
-- **Leave-one-out:** pending (the v0.2.4 figures below still stand).
+- **Leave-one-out** (3,215 queries, 1,225 species), read whole: tiered
+  rule (the default) 69.9% species recall, 99.2% precision, 8.0%
+  over-classification (v0.2.4: 69.7%, 99.0%, 8.4%); its gap-rule call
+  58.8%, 99.5%, 4.8% (v0.2.4: 58.6%, 99.4%, 4.9%).
 
 Earlier releases: [docs/RELEASES.md](docs/RELEASES.md).
 
@@ -178,11 +181,11 @@ Tested two ways (docs/DESIGN.md §6): leave-one-out on the database
 itself, and two livestock datasets (one published) run through the standard
 nemabiome DADA2 workflow.
 
-Leave-one-out figures are for v0.2.4, the datasets' for v0.2.1. Since v0.1.0 the classifier
+Leave-one-out figures are for v0.2.5, the datasets' for v0.2.1. Since v0.1.0 the classifier
 also scores every candidate (issue #1) and scores read windows strictly
 (docs/DESIGN.md §6).
 
-**Leave-one-out** (3,220 records of 1,226 species, read whole; 2x150 is
+**Leave-one-out** (3,215 records of 1,225 species, read whole; 2x150 is
 within 3 points). *Present*: only the query's own record removed.
 *Missing*: every record of the query's species removed, so any species
 named is wrong. Recall = right calls / reads; precision = right calls /
@@ -191,10 +194,10 @@ missing species (`results/leave_one_out/metrics.txt`).
 
 | Classifier, this database | Species recall | Species precision | Genus recall | Genus precision | Over-classification |
 |---|---:|---:|---:|---:|---:|
-| `bin/classify_asvs.py`, tiered (gap + tentative; the default) | 69.7% | 99.0% | 90.0% | 99.6% | 8.4% |
-| `bin/classify_asvs.py`, gap rule (the tiered rule's confident call) | 58.6% | **99.4%** | 90.0% | 99.6% | **4.9%** |
-| DECIPHER IdTaxa (threshold 60) | 80.4% | 97.6% | 94.4% | **99.7%** | 18.8% |
-| dada2 assignTaxonomy (minBoot 80) | **86.3%** | 95.7% | **97.9%** | 99.4% | 38.9% |
+| `bin/classify_asvs.py`, tiered (gap + tentative; the default) | 69.9% | 99.2% | 89.9% | 99.6% | 8.0% |
+| `bin/classify_asvs.py`, gap rule (the tiered rule's confident call) | 58.8% | **99.5%** | 89.9% | 99.6% | **4.8%** |
+| DECIPHER IdTaxa (threshold 60) | 80.3% | 97.7% | 94.0% | 99.6% | 18.0% |
+| dada2 assignTaxonomy (minBoot 80) | **86.9%** | 95.6% | **97.9%** | 99.4% | 37.4% |
 
 The default is the tiered rule, which reports two calls for each read:
 the gap rule's, the confident one, and beside it a tentative species

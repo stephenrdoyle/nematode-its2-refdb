@@ -114,7 +114,9 @@ of your leave-out benchmark's wrong calls (*H. fabri* for *H. aduncum*,
 *H. sinense* and *H. liparis* share an ITS2, so the benchmark could count
 that pair as indistinguishable. 14 other misidentified accessions
 dropped; GenBank update refetched 2026-11-16 (68 new records). 12,041
-records, 1,864 named species.
+records, 1,864 named species. Leave-one-out read whole, tiered rule:
+69.9% / 99.2% / 8.0% (v0.2.4: 69.7% / 99.0% / 8.4%); its gap-rule call:
+58.8% / 99.5% / 4.8% (v0.2.4: 58.6% / 99.4% / 4.9%).
 
 ## What changed in v0.2.4
 
