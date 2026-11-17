@@ -158,3 +158,29 @@ in ENA or the literature, for amphid to test against. Two leads:
 
 Until one turns up, amphid's nanopore evidence for ITS2 is the
 simulation in point 3.
+
+## 7. The leave-out benchmark on v0.2.5, and what counts as wrong
+
+amphid's `tests/bench_db_gap.py` was rerun on v0.2.5. The settings were those of the v0.2.4 run: whole release, `nanopore_hac`, 300 samples, seed 2026, gap_exact 2. The held-out species are drawn from the release, so v0.2.5 held out a different set. amphid's `main` also moved between the runs: db90181 for v0.2.4, f4faf70 for v0.2.5.
+
+From nf-amphid-pipeline #37, a held-out species' call counts as indistinguishable, not wrong, when the source record is fewer than 4 edits (the gap) from a typical record of the species named. A typical record is within the gap of another record of its own species, or is that species' only record. A record far from the rest of its species is taken as misidentified, and a call through it stays wrong. Before #37 only exact containment counted. Rescored from the same calls:
+
+| species held out | wrong | indistinguishable |
+|---|---|---|
+| v0.2.4, exact containment | 18.0% | 0.0% |
+| v0.2.4, within the gap | 8.0% | 10.0% |
+| v0.2.5, exact containment | 19.0% | 0.7% |
+| v0.2.5, within the gap | 5.7% | 14.0% |
+
+- **v0.2.4's wrong calls** were mostly through MW370746 (8 calls) and MW413285 (7), both dropped in v0.2.5.
+- **v0.2.5 *Hysterothylacium*:** held-out *H. amoyense* (14 sources) and *H. fabri* (21) get no wrong species calls. *H. aduncum* was not held out this time.
+- **v0.2.5 remaining wrong calls (17):**
+  - 7 *H. sinense* sources beyond the gap of every *H. liparis* record.
+  - 7 through PV138334 (*H. urticae*: 1 edit from *H. cruciferae*, 5 from the other *H. urticae* record).
+  - 4 single calls: *Orloffia bisonis* → *Teladorsagia*, *P. vulnus* → *P. penetrans*, one *H. elachista* → *H. oryzae*, *Heterorhabditis taysearae* → Steinernematidae.
+- **v0.2.5 indistinguishable (42):**
+  - *H. sinense* → *H. liparis*: 32.
+  - *H. elachista* → *H. oryzae*: 7.
+  - *Hemicriconemoides litchi* → *H. strictathecatus*: 2.
+  - *P. panamaensis* → *P. gutierrezi*: 1.
+- **Known limit:** a group of misidentified records passes as typical, since its records are close to each other. In v0.2.4 that was the short croaker lineage under "*H. fabri*" (2 calls), which v0.2.5 no longer has.
