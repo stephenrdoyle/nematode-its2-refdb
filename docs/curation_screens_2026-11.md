@@ -66,3 +66,9 @@ On v0.2.5's own intake (`--since` v0.2.4), the screen flags the 3 *Gnathostoma* 
 With the drops, the screens give:
 - `study_screen.py`: 754 species checkable, with 3 `mislabel` calls (the ones left above), 55 `lineage` and 64 `records`.
 - `not_its2.py`: no `its1`, `reversed`, `not_its2` or `miscut` calls; 223 `supported`, 139 `own_only`, 30 `isolated`. No records are new since v0.2.5.
+
+## After amphid's benchmark on v0.2.6
+
+amphid's leave-out benchmark on v0.2.6 left four wrong calls on held-out species (`docs/feedback/amphid_notes_for_its2.md`, section 8). Two were checked by hand:
+- **Dropped:** *Haemonchus contortus* LC552171.1, a full-length ITS2 4-6 edits from eight *H. longistipes* records and 19 from the typical *H. contortus*. It named a held-out *H. longistipes* as *H. contortus*. Nothing else from its submission is in the database.
+- **Left:** *Parelaphostrongylus tenuis* AF504035.1. It is 4 edits from *P. tenuis* AF504029 (same study) and 5 from MW377752, and also 4 from *P. andersoni* EF173702. The three full-length *P. tenuis* records differ by 3-5 edits among themselves. This is *P. tenuis* variation near one of the two *P. andersoni* clusters, and the two species cannot be told apart reliably on so few *P. tenuis* records.
