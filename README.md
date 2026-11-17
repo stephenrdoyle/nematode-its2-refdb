@@ -366,6 +366,10 @@ python3 bin/ncbi_names.py ${S}_taxonomy_nr.txt curation/ncbi_names.tsv   # curre
 python3 bin/build.py work/its2/its2 work/its2/taxonomy.txt nemabiome_20260317 work/build --workers 8 \
     --layer curation/long_read_its2.tsv --lineages curation/lineages.tsv
 python3 bin/species_coherence.py work/build > work/build/species_coherence.tsv   # screen before a release
+# whenever new sequences come in: records that may not be ITS2 (new ones marked against the last release),
+# and submissions at odds with every other submission of a species
+python3 bin/not_its2.py work/build work/its2/its2_cut.tsv --since releases/nemits2_v0.2.5 > work/build/not_its2.tsv
+python3 bin/study_screen.py work/build > work/build/study_screen.tsv
 bin/export_kmer.sh work/build work/build/kmer nemits2_dev   # DADA2 / IdTaxa files (R, dada2, DECIPHER)
 ```
 
