@@ -46,7 +46,17 @@ Calls (one per record, first that applies):
   miscut      a primer site inside the cut: ITS2 with 5.8S/ITS1 or 28S
               attached
   check       anchored at neither end and family_ident < 0.75, or
-              len_ratio outside 0.6-1.5 with family_ident < 0.75
+              len_ratio outside 0.6-1.5 with family_ident < 0.75; then
+              split by self-consistency within its genus (identity >=
+              0.85, any grade; submissions as bin/study_screen.py's):
+    supported   matches a record from another submission: an ITS2
+                someone else found too (not written unless --all)
+    own_only    matches only records of its own submission: one study's
+                sequence, unconfirmed (a lineage, or one study's error)
+    isolated    matches no record of its genus: with no anchor at
+                either end, as good as not ITS2
+  Columns own_ident / other_ident give the best identity within the
+  genus to its own submission's records and to other submissions'.
 Records without a call are not written. Layer records (genome
 assemblies, long reads) are cut by bin/its2_scan.py and not judged.
 """
@@ -62,6 +72,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build import read_fasta, span_distance  # noqa: E402
+from study_screen import submissions  # noqa: E402
 from its2 import NC1, NC2, S28  # noqa: E402
 from seqmatch import find_anchor_cost, revcomp  # noqa: E402
 
@@ -77,6 +88,18 @@ def _ident(job):
         return rid, None, ""
     d, j = min((span_distance(_S[rid], _S[o]), o) for o in pool)
     return rid, 1 - d / min(len(_S[rid]), len(_S[j])), j
+
+
+def _genus(job):
+    rid, own, other = job
+    best = []
+    for pool in (own, other):
+        if not pool:
+            best.append((None, ""))
+            continue
+        d, j = min((span_distance(_S[rid], _S[o]), o) for o in pool)
+        best.append((1 - d / min(len(_S[rid]), len(_S[j])), j))
+    return rid, best
 
 
 def sites(x):
@@ -106,6 +129,7 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=os.cpu_count())
     ap.add_argument("--since", help="previous release (or build) dir: mark records with accessions new since it")
     ap.add_argument("--only-new", action="store_true", help="write only records marked new (needs --since)")
+    ap.add_argument("--all", action="store_true", help="also write check records an independent submission supports")
     ap.add_argument("--ident", help="cache of family identities (TSV): read if present, else written")
     a = ap.parse_args()
 
@@ -114,7 +138,13 @@ def main() -> int:
     fit = {r["id"]: r for r in csv.DictReader(open(os.path.join(a.build, "primer_fit.tsv")), delimiter="\t")}
     cut = {r["accession"]: r for r in csv.DictReader(open(a.cut), delimiter="\t")}
     how = collections.defaultdict(lambda: [set(), set(), 0])
-    for r in csv.DictReader(open(os.path.join(a.build, "members.tsv")), delimiter="\t"):
+    mrows = list(csv.DictReader(open(os.path.join(a.build, "members.tsv")), delimiter="\t"))
+    sub = submissions({r["accession"].split(".")[0] for r in mrows}, 20)
+    subs_of = collections.defaultdict(set)
+    for r in mrows:
+        if r["id"] and r["role"] != "dropped":
+            subs_of[r["id"]].add(sub.get(r["accession"].split(".")[0], r["accession"]))
+    for r in mrows:
         if r["id"] and r["role"] != "dropped":
             c = cut.get(r["accession"].split(".")[0])
             h = how[r["id"]]
@@ -164,10 +194,7 @@ def main() -> int:
             with open(a.ident, "w") as fh:
                 fh.writelines(f"{r}\t{'' if i is None else i}\t{j}\n" for r, (i, j) in ident.items())
 
-    w = csv.writer(sys.stdout, delimiter="\t", lineterminator="\n")
-    w.writerow(["call", "id", "species", "length", "len_ratio", "grade", "members", "start", "end", "fit",
-                "nc1_edits", "nc2_edits", "nc1_at", "s28_at", "reversed", "its1", "family_ident", "nearest", "new"])
-    calls = collections.Counter()
+    found = []
     for r in tax:
         if layer(r):
             continue
@@ -194,13 +221,49 @@ def main() -> int:
             continue
         if a.only_new and not new_acc[r]:
             continue
+        found.append((call, r, s, ratio, fi, near))
+
+    # Self-consistency of the check records within their genus.
+    by_genus = collections.defaultdict(list)
+    for r in tax:
+        if not layer(r):
+            by_genus[tax[r]["genus"]].append(r)
+    gjobs = []
+    for call, r, *_ in found:
+        if call == "check":
+            mine = subs_of[r]
+            pool = [o for o in by_genus[tax[r]["genus"]] if o != r]
+            gjobs.append((r, [o for o in pool if subs_of[o] & mine], [o for o in pool if not subs_of[o] & mine]))
+    with mp.get_context("fork").Pool(a.workers) as pool:
+        gen = dict(pool.imap_unordered(_genus, gjobs, chunksize=4))
+
+    w = csv.writer(sys.stdout, delimiter="\t", lineterminator="\n")
+    w.writerow(["call", "id", "species", "length", "len_ratio", "grade", "members", "start", "end", "fit",
+                "nc1_edits", "nc2_edits", "nc1_at", "s28_at", "reversed", "its1", "family_ident", "nearest",
+                "own_ident", "other_ident", "other_nearest", "new"])
+    calls = collections.Counter()
+    for call, r, s, ratio, fi, near in found:
+        t = tax[r]
+        (oi, _), (xi, xj) = gen.get(r, ((None, ""), (None, "")))
+        if call == "check":
+            if xi is not None and xi >= 0.85:
+                call = "supported"
+            elif oi is not None and oi >= 0.85:
+                call = "own_only"
+            else:
+                call = "isolated"
+            if call == "supported" and not a.all:
+                calls[call] += 1
+                continue
         calls[call] += 1
         f = fit.get(r, {})
-        w.writerow([call, r, t["species"] or t["genus"] + " (genus)", len(x), "" if ratio is None else f"{ratio:.2f}",
+        fmt = lambda v: "" if v is None else f"{v:.2f}"
+        w.writerow([call, r, t["species"] or t["genus"] + " (genus)", len(seqs[r]), fmt(ratio),
                     t["grade"], how[r][2], ",".join(sorted(how[r][0])), ",".join(sorted(how[r][1])), f.get("fit", ""),
                     f.get("nc1_edits", ""), f.get("nc2_edits", ""), s.get("nc1_at", ""), s.get("s28_at", ""),
-                    s.get("reversed", ""), s.get("its1", ""), "" if fi is None else f"{fi:.2f}",
-                    (tax[near]["species"] or tax[near]["genus"]) if near else "", new_acc[r] or ""])
+                    s.get("reversed", ""), s.get("its1", ""), fmt(fi),
+                    (tax[near]["species"] or tax[near]["genus"]) if near else "", fmt(oi), fmt(xi),
+                    (tax[xj]["species"] or tax[xj]["genus"]) if xj else "", new_acc[r] or ""])
     print("calls: " + ", ".join(f"{k} {v}" for k, v in calls.most_common()) + f"; identity jobs {len(jobs)}"
           + (f"; records with accessions new since {a.since}: {len(new_acc)}" if a.since else ""), file=sys.stderr)
     return 0
