@@ -60,3 +60,9 @@ On v0.2.5's own intake (`--since` v0.2.4), the screen flags the 3 *Gnathostoma* 
 - **Left:**
   - The *H. hainanense* accession that keeps an *H. fabri* record at genus.
   - *Cactodera estonica* HM560732 (`closer`: 7 edits from *C. xinanensis*, 10 from its own species).
+
+## On v0.2.6
+
+With the drops, the screens give:
+- `study_screen.py`: 754 species checkable, with 3 `mislabel` calls (the ones left above), 55 `lineage` and 64 `records`.
+- `not_its2.py`: no `its1`, `reversed`, `not_its2` or `miscut` calls; 223 `supported`, 139 `own_only`, 30 `isolated`. No records are new since v0.2.5.

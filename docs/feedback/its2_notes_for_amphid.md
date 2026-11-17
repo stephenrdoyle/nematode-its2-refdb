@@ -103,6 +103,20 @@ Every point of the recipe is now in amphid, the denoiser aside.
 amphid's own account of each step, with the measurements, is its
 `docs/REFERENCE_DATABASE.md` §12 and `docs/CONTRACTS.md`.
 
+## What changed in v0.2.6
+
+**The format did not change.** 82 accessions dropped: 81 whose record
+is not ITS2 or carries another species' ITS2, found by two new screens
+that now run on every intake (`bin/not_its2.py`, `bin/study_screen.py`;
+`docs/curation_screens_2026-11.md`), and *Heterodera urticae* PV138334,
+behind 7 of the 17 wrong calls in your leave-out benchmark on v0.2.5
+(your note 7). 10 named species had only records that are not ITS2 and
+are gone. *Meloidogyne graminis* and *M. marylandi* share an ITS2 and
+stay tied. No new records; no record changes rank. 11,961 records,
+1,854 named species. Leave-one-out read whole, tiered rule: 70.2% /
+99.2% / 8.1% (v0.2.5: 69.9% / 99.2% / 8.0%); its gap-rule call: 59.0% /
+99.5% / 4.9% (v0.2.5: 58.8% / 99.5% / 4.8%).
+
 ## What changed in v0.2.5
 
 **The format did not change.** In `species_margins.tsv` and the

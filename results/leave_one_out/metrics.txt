@@ -1,22 +1,22 @@
-Leave-one-out, 3,215 queries, work/build_v0.2.5.
+Leave-one-out, 3,214 queries, work/build_v0.2.6.
 Recall = right / queries; precision = right / calls made at that rank or deeper;
 over-classification = calls made where the right answer is not in the database.
 
-== whole: present 2,763 queries; hidden 3,215 (genus kept 2,950, genus gone 265)
+== whole: present 2,760 queries; hidden 3,214 (genus kept 2,949, genus gone 265)
    arm                species recall        precision     genus recall        precision   over-class. sp  genus kept: rec             prec genus gone: over
-   v4                          19.5%            95.6%            51.4%            99.6%             1.4%             5.8%            96.0%             1.1%
-   exact                       11.7%            96.1%            54.5%            99.6%             0.9%             6.6%            96.5%             1.1%
-   gap                         58.8%            99.5%            89.9%            99.6%             4.8%            29.6%            95.2%             4.5%
-   tiered                      69.9%            99.2%            89.9%            99.6%             8.0%            29.6%            95.2%             4.5%
-   assignTaxonomy              86.9%            95.6%            97.9%            99.4%            37.4%            73.7%            95.5%            26.8%
-   IdTaxa                      80.3%            97.7%            94.0%            99.6%            18.0%            44.1%            95.7%            11.3%
+   v4                          19.6%            95.6%            51.4%            99.6%             1.4%             5.7%            96.0%             1.1%
+   exact                       11.7%            96.1%            54.5%            99.6%             0.9%             6.5%            96.5%             1.1%
+   gap                         59.0%            99.5%            90.0%            99.6%             4.9%            29.4%            95.2%             4.5%
+   tiered                      70.2%            99.2%            90.0%            99.6%             8.1%            29.4%            95.2%             4.5%
+   assignTaxonomy              87.1%            95.8%            98.0%            99.5%            37.4%            73.9%            95.5%            26.0%
+   IdTaxa                      81.0%            97.5%            94.2%            99.7%            18.2%            43.3%            95.5%            10.6%
 
-== 2x150: present 2,248 queries; hidden 2,634 (genus kept 2,393, genus gone 241)
+== 2x150: present 2,248 queries; hidden 2,635 (genus kept 2,394, genus gone 241)
    arm                species recall        precision     genus recall        precision   over-class. sp  genus kept: rec             prec genus gone: over
-   v4                          22.3%            97.1%            61.0%            99.6%             1.8%             6.6%            95.2%             1.2%
-   exact                       22.3%            97.1%            61.5%            99.6%             1.8%             6.9%            95.4%             1.2%
-   gap                         61.6%            99.6%            91.2%            99.6%             5.4%            29.9%            95.2%             4.1%
-   tiered                      70.5%            99.3%            91.2%            99.6%             8.8%            29.9%            95.2%             4.1%
-   assignTaxonomy              88.0%            96.5%            97.9%            99.5%            33.6%            72.3%            96.1%            27.8%
-   IdTaxa                      81.1%            97.8%            94.3%            99.7%            18.9%            46.2%            96.0%            11.2%
+   v4                          22.4%            97.1%            61.0%            99.6%             1.8%             6.6%            95.2%             1.2%
+   exact                       22.4%            97.1%            61.5%            99.6%             1.8%             6.9%            95.4%             1.2%
+   gap                         61.7%            99.6%            91.3%            99.6%             5.4%            29.9%            95.2%             4.1%
+   tiered                      70.6%            99.3%            91.3%            99.6%             8.8%            29.9%            95.2%             4.1%
+   assignTaxonomy              88.0%            96.5%            98.0%            99.5%            33.5%            72.2%            96.3%            27.4%
+   IdTaxa                      81.5%            98.1%            94.3%            99.7%            19.1%            46.3%            96.1%            12.0%
 

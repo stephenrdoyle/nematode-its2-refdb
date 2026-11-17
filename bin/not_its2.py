@@ -265,7 +265,7 @@ def main() -> int:
                     (tax[near]["species"] or tax[near]["genus"]) if near else "", fmt(oi), fmt(xi),
                     (tax[xj]["species"] or tax[xj]["genus"]) if xj else "", new_acc[r] or ""])
     print("calls: " + ", ".join(f"{k} {v}" for k, v in calls.most_common()) + f"; identity jobs {len(jobs)}"
-          + (f"; records with accessions new since {a.since}: {len(new_acc)}" if a.since else ""), file=sys.stderr)
+          + (f"; records with accessions new since {a.since}: {sum(1 for v in new_acc.values() if v)}" if a.since else ""), file=sys.stderr)
     return 0
 
 

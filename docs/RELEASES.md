@@ -4,6 +4,60 @@ Release notes for nemits2 releases before the current one, newest first.
 The current release is described in the [README](../README.md); each
 release's manifest and summary are under `releases/`.
 
+## v0.2.5
+
+12,041 records and 1,864 named species (425 genera), from the same
+backbone, a GenBank update refetched on 2026-11-16, and a curation pass.
+The release format is v0.2.4's. Against v0.2.4: 12,044 records, 1,866
+named species; 122 contained pairs in 41 species pairs (131, 46);
+`counts.member_roles.dropped` 851 (894).
+
+- **GenBank update refetched** (`sources/genbank_update_20261116_carried`):
+  68 records new since 13 November. Records the earlier fetch also holds
+  keep that fetch's ITS2 region (`bin/carry_update_regions.py`), so a
+  newer reference build does not move records in or out. 10 source
+  records gained (*Gnathostoma* 3, *Bursaphelenchus* 2, *Ditylenchus*,
+  *Paralibyostrongylus*, *Steinernema*, *Caenorhabditis*, *Meloidogyne*),
+  none lost.
+- **An unnamed record is not another species** ([#18](https://github.com/stephenrdoyle/nematode-its2-refdb/pull/18)). In
+  `species_margins.tsv` and the resolution tables, a hybrid, cf. or
+  "s.l." record is no longer the nearest other species, as in the
+  classifier's gap; a record shared between two named species still is.
+  v0.2.4 tied *Contracaecum rudolphii* to a "*C. rudolphii* A x B"
+  record and *Anisakis pegreffii* to an "*A. simplex* s.l." one.
+- **Hybrid records dropped** (27 accessions, 24 records): *Haemonchus
+  contortus* x *H. placei* (23), *Anisakis simplex* x *A. pegreffii* (3),
+  *Contracaecum rudolphii* A x B. ITS2 is multicopy: a hybrid's sequence
+  is a copy from one parent, and its record could only ever give a
+  genus call.
+- ***Hysterothylacium*** (`docs/curation_hysterothylacium_2026-11.md`;
+  33 accessions dropped, nearly all from one unpublished *Collichthys
+  lucidus* study). A ~280-base lineage filed under four names (23
+  accessions) is the study's own "*Raphidascaris* sp.": with the
+  mislabels gone, its 71 *Raphidascaris* sp. accessions enter as 44
+  informal records, named to genus. Also dropped: records carrying
+  another species' ITS2 (MW370746, MW370888, MW370897, MW370898,
+  MW370903, MW370934), records nothing lies near (MW370702, MW370546,
+  MW370885), and MW413285 (*H. zhoushanense*, 3 edits from *H.
+  amoyense*). An *H. sinense* and an *H. aduncum* record held at genus
+  by a mislabelled member now reach species. *H. sinense* and *H.
+  liparis* share an ITS2 and stay tied.
+- **Other misidentifications dropped** (14 accessions): *Globodera*
+  AF161003-4 (a *Cactodera*-like ITS2); *Cactodera estonica* MN658364,
+  MW821355-6 (the *C. xinanensis* type ITS2); *Heterakis isolonche*
+  KM212953 (= *H. dispar*); four *Paratylenchus nanus*/*projectus* from
+  one submitter; *Steinernema borjomiense* LT984409-10; two Iranian
+  *Oscheius shamimi* 83 edits from the species' redescription.
+- **Checked, no change:** *Haemonchus placei* records against short
+  reads of an *H. placei* genome (SRR24442206; docs/DESIGN.md §8).
+- Coherence screen: `displaced` 17 (26), `stray` 167 (170), `closer`
+  379 (395). One new `closer`: *Cactodera estonica* HM560732, 7 edits
+  from *C. xinanensis* and 10 from its own species, left.
+- **Leave-one-out** (3,215 queries, 1,225 species), read whole: tiered
+  rule (the default) 69.9% species recall, 99.2% precision, 8.0%
+  over-classification (v0.2.4: 69.7%, 99.0%, 8.4%); its gap-rule call
+  58.8%, 99.5%, 4.8% (v0.2.4: 58.6%, 99.4%, 4.9%).
+
 ## v0.2.4
 
 12,044 records and 1,866 named species (425 genera), from the same
