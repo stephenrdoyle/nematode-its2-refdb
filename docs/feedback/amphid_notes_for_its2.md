@@ -177,7 +177,8 @@ From nf-amphid-pipeline #37, a held-out species' call counts as indistinguishabl
 - **v0.2.5 remaining wrong calls (17):**
   - 7 *H. sinense* sources beyond the gap of every *H. liparis* record.
   - 7 through PV138334 (*H. urticae*: 1 edit from *H. cruciferae*, 5 from the other *H. urticae* record).
-  - 4 single calls: *Orloffia bisonis* → *Teladorsagia*, *P. vulnus* → *P. penetrans*, one *H. elachista* → *H. oryzae*, *Heterorhabditis taysearae* → Steinernematidae.
+  - 3 single calls: *P. vulnus* → *P. penetrans*, one *H. elachista* → *H. oryzae*, *Heterorhabditis taysearae* → Steinernematidae.
+- **v0.2.5 held-out genus:** one wrong call (0.3%), *Orloffia bisonis* → *Teladorsagia*. Before nf-amphid-pipeline #37's fix, the benchmark's pair listing put it among the held-out species.
 - **v0.2.5 indistinguishable (42):**
   - *H. sinense* → *H. liparis*: 32.
   - *H. elachista* → *H. oryzae*: 7.
