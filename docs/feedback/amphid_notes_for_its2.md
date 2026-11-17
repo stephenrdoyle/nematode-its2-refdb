@@ -185,3 +185,34 @@ From nf-amphid-pipeline #37, a held-out species' call counts as indistinguishabl
   - *Hemicriconemoides litchi* → *H. strictathecatus*: 2.
   - *P. panamaensis* → *P. gutierrezi*: 1.
 - **Known limit:** a group of misidentified records passes as typical, since its records are close to each other. In v0.2.4 that was the short croaker lineage under "*H. fabri*" (2 calls), which v0.2.5 no longer has.
+
+## 8. The leave-out benchmark on v0.2.6
+
+The benchmark was rerun on v0.2.6 with the settings of section 7, on amphid `main` 571cbdc (nf-amphid-pipeline #37). v0.2.5's calls were rescored on the same code.
+
+The held-out species are drawn from the release, and v0.2.6 has 10 fewer named species, so this run held out a different set: 59 species gave held-out sources, 20 of them also held out on v0.2.5. In particular, *H. sinense* was not held out this time. That species gave 39 of v0.2.5's 59 wrong or indistinguishable calls.
+
+| species held out, within the gap | deepest | wrong | indistinguishable | higher | no consensus |
+|---|---|---|---|---|---|
+| v0.2.5 | 17.7% | 5.7% | 14.0% | 31.0% | 31.7% |
+| v0.2.6 | 18.3% | 1.3% | 2.0% | 46.0% | 32.3% |
+
+- Most of the drop comes from the different draw, not from the release. A paired comparison covers only the 20 species held out in both runs (136 sources on v0.2.5, 125 on v0.2.6): wrong 5.9% → 0.8%, indistinguishable 5.9% → 3.2%.
+- In the records left in, species calls are 93.7% → 92.3% deepest (gap_exact 2), with no wrong calls.
+- The held-out genus has one wrong call (0.3%), *Orloffia bisonis* → *Teladorsagia*, as on v0.2.5.
+
+**PV138334.** Its 7 wrong calls are gone. Both species they came from were held out again:
+- *H. cruciferae*: 2 wrong on v0.2.5, 5 at genus (the deepest allowed) on v0.2.6.
+- *H. carotae*: 5 wrong of 8 on v0.2.5, 2 of 2 at genus on v0.2.6.
+
+**Remaining wrong calls on held-out species (4).** Two of the named records sit apart from their own species and close to the source's species. They may be worth a look in the study screen:
+- **2 *Parelaphostrongylus andersoni* → *P. tenuis*, both through AF504035.1.** It is labelled *P. tenuis* but is 4 edits from a *P. andersoni* record (its margin is 4, nearest ITS2_ada5f980b1b3). The other 4 *P. tenuis* records are 4, 5, 6 and 23 edits away. It is 6 edits from both held-out sources.
+- **1 *Haemonchus longistipes* → *H. contortus*, through LC552171.1.** It is labelled *H. contortus* but is 6 or more edits from all 326 other *H. contortus* records and 4 from an *H. longistipes* record (the held-out source). A misidentified *H. longistipes* would explain it, but the benchmark cannot tell that from real variation.
+- **1 *Heterodera elachista* → *H. oryzae*, through MT823206.1** (partial_90). It is contained in two *H. elachista* records, so it is a margin-0 tie, and 4 edits from the source. That is exactly at the gap, and the rule needs fewer than 4. The other 3 *H. elachista* calls to *H. oryzae* count as indistinguishable.
+
+**Indistinguishable (6):**
+- *H. elachista* → *H. oryzae*: 3.
+- *Pratylenchus thornei* → *P. neglectus*: 2.
+- *P. panamaensis* → *P. gutierrezi*: 1.
+
+The run held out none of the species named in section 7's other open points: *H. aduncum*, *H. sinense*/*H. liparis* and *Meloidogyne graminis*/*M. marylandi*. They are untested on v0.2.6.
