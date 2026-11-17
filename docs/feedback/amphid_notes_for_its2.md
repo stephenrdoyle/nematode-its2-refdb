@@ -173,7 +173,7 @@ From nf-amphid-pipeline #37, a held-out species' call counts as indistinguishabl
 | v0.2.5, within the gap | 5.7% | 14.0% |
 
 - **v0.2.4's wrong calls** were mostly through MW370746 (8 calls) and MW413285 (7), both dropped in v0.2.5.
-- **v0.2.5 *Hysterothylacium*:** held-out *H. amoyense* (14 sources) and *H. fabri* (21) get no wrong species calls. *H. aduncum* was not held out this time.
+- **v0.2.5 *Hysterothylacium*:** held-out *H. amoyense* (13 sources) and *H. fabri* (21) get no wrong species calls. *H. aduncum* was not held out this time.
 - **v0.2.5 remaining wrong calls (17):**
   - 7 *H. sinense* sources beyond the gap of every *H. liparis* record.
   - 7 through PV138334 (*H. urticae*: 1 edit from *H. cruciferae*, 5 from the other *H. urticae* record).
