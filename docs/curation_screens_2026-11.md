@@ -87,6 +87,16 @@ The study screen makes 55 `lineage` calls on v0.2.6. A lineage call can name rea
 
 *B. pahangi* PV646253 is 1 edit from *B. malayi* MW192406. ITS2 may not separate the two species.
 
-The remaining calls are not near another species:
-- About seven (group B) have their two sides 78-166 edits apart: *Longidorus cholevae*, *Heteroxynema cucullatum*, *Oscheius carolinensis*, *Rotylenchulus macrodoratus*, *Pratylenchus fallax*, *Trichinella nelsoni* and *Parabronema skrjabini*. That is more than variation within a species, and these are still to be checked.
-- The other ~40 (group C) are cryptic lineages or sparsely sampled species, and are left.
+The remaining calls are not near another species.
+
+Group B are seven calls whose two sides lie 78-166 edits apart, more than one species' variation. In each, both sides are 10 or more edits (identity 0.84 or more apart) from any other named species, so none of them can name a read wrongly:
+- **Dropped:** *Parabronema skrjabini* LC275902-08 and LC325445-50 (13 records, two submissions). Each is 64-150 edits from every other *P. skrjabini* record, the 13 included, and 0.66-0.71 identical to the nearest other species. The species' other records form two lineages. One has support from several submissions (EU375510, EU420132, MT509436-39, MW231981, MW232412). The other is looser and draws on five (KP645202, KP670201, KT318372, MZ151415, PP262607, PV930534).
+- **Left:**
+  - *Longidorus cholevae*: FR775757-60 (344-357 bases) and HG329719 (488 bases, 10 edits from *L. raskii*), 156 edits apart. The single HG329719 is the likelier misidentification.
+  - *Oscheius carolinensis*: PP826954-56 and FJ547241, 86 edits apart, both about 0.88 identical to other *Oscheius*.
+  - *Pratylenchus fallax*: FJ712917-21 (11 edits from *P. lentis*) and KY828258-73 (17 from *P. convallariae*), 78 edits apart. *P. fallax* is placed in the *P. penetrans* group, which fits the KY side.
+  - *Trichinella nelsoni*: four clusters 52-90 edits apart, 252-422 bases, all about 0.88 identical to *T. spiralis*.
+  - *Rotylenchulus macrodoratus*: KT003794-96 and most of KY992810-14 form one cluster. KY992815-23 is another ITS2 from that one study, 84 edits away and near no named species.
+  - *Heteroxynema cucullatum*: 57 MH0112xx records against OP978506 (302 bases, 0.56 identical to anything in the family). The family has too few records to check either side.
+
+The other ~40 calls (group C) are cryptic lineages or sparsely sampled species, 10-75 edits from their own species and 7 or more from any other. They are left.
