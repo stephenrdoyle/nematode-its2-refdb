@@ -73,3 +73,20 @@ amphid's leave-out benchmark on v0.2.6 left four wrong calls on held-out species
 - **Dropped:** *Haemonchus contortus* LC552171.1, a full-length ITS2 4-6 edits from eight *H. longistipes* records and 19 from the typical *H. contortus*. It named a held-out *H. longistipes* as *H. contortus*. Nothing else from its submission is in the database.
 - **Left:** *Parelaphostrongylus tenuis* AF504035.1. It is 4 edits from *P. tenuis* AF504029 (same study) and 5 from MW377752, and also 4 from *P. andersoni* EF173702. The three full-length *P. tenuis* records differ by 3-5 edits among themselves. This is *P. tenuis* variation near one of the two *P. andersoni* clusters, and the two species cannot be told apart reliably on so few *P. tenuis* records.
 - **Dropped, the mirror case:** *Haemonchus longistipes* MH374136.1, a 198-base partial 4 edits from six *H. contortus* records and 9-10 from the nearest *H. longistipes*. Its submission's five other *H. longistipes* records are not near *H. contortus*. It was the nearest other species for 14 *H. contortus* records, four of them at a margin of 4.
+
+## Lineage calls on v0.2.6
+
+The study screen makes 55 `lineage` calls on v0.2.6. A lineage call can name reads wrongly only where the outlying records lie near another species. Seven calls do (group A), and each was checked record by record:
+- **Relabelled:** *Heligmosomoides polygyrus* AM409090 and AM409091, now *H. bakeri*. They are full-length ITS2s 1-2 edits from *H. bakeri* (DQ408624, AY333382, and the ITS2 copies of three *H. bakeri* genome assemblies) and 14 from the typical *H. polygyrus*. The laboratory mouse strain was long published as *H. polygyrus*.
+- **Dropped:** *Dirofilaria immitis* LN626260. It is a *D. repens*-group ITS2: 4 edits from *D. repens*, 6 from *D. asiatica*, and 41 or more from all 112 *D. immitis* records.
+- **Left:**
+  - The same study's LN626257/58/61 (432-502 bases, 53 or more edits from other *D. immitis* records, near nothing).
+  - *Cyathostomum catinatum* MG738696/697/704 and *Brugia malayi* MW192396-406. Both calls come from a short partial of another species that lies near most of its genus (*Cylicostephanus goldi* MG738703, 150 bases; *B. pahangi* OK138711, 137 bases). Against full-length records they are 13 or more edits from everything.
+  - *Xiphinema rivesi*/*X. inaequale*, both in the *X. americanum* group. The one *X. inaequale* record is 1-2 edits from three *X. rivesi*, whose own records spread over 25 edits.
+  - *Quilonia africana* PQ578012-15 (3-6 edits from *Q. renniei*, 11-14 from the only other *Q. africana*) and *Heterodera filipjevi* OR214983 (4 edits from one *H. avenae* record, 13 or more from both species' other records). The other side is a single record in each, and it is not clear which side is right.
+
+*B. pahangi* PV646253 is 1 edit from *B. malayi* MW192406. ITS2 may not separate the two species.
+
+The remaining calls are not near another species:
+- About seven (group B) have their two sides 78-166 edits apart: *Longidorus cholevae*, *Heteroxynema cucullatum*, *Oscheius carolinensis*, *Rotylenchulus macrodoratus*, *Pratylenchus fallax*, *Trichinella nelsoni* and *Parabronema skrjabini*. That is more than variation within a species, and these are still to be checked.
+- The other ~40 (group C) are cryptic lineages or sparsely sampled species, and are left.
