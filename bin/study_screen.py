@@ -24,7 +24,12 @@ For each accession of species S in submission B, in record r:
          span_distance
   other  edits from r to the nearest record of another species
          (species_margins.tsv, read whole; 0 if r is shared with another
-         species, or r is another species' record)
+         species, or r is another species' record). A short partial is
+         near many records over the few bases it has (a 150-base
+         Cylicostephanus goldi partial lies 2-4 edits from most
+         cyathostomins), so where the nearest is shorter than
+         --min-span of r's length, other is measured afresh against the
+         family's records of other species at least that long
   supported   ind <= 3
   conflict    ind >= 10 and other < ind (nearer another species than any
               independent record of its own), or ind >= 20 (far from
@@ -104,6 +109,8 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=os.cpu_count())
     ap.add_argument("--gap", type=int, default=20, help="largest step in accession number within a submission")
     ap.add_argument("--min", type=int, default=3, help="fewest accessions of a species for a submission to be listed")
+    ap.add_argument("--min-span", type=float, default=0.75,
+                    help="shortest another species' record may be, as a share of r's length, to count for other")
     a = ap.parse_args()
 
     seqs = read_fasta(os.path.join(a.build, "refdb.fasta"))
@@ -125,14 +132,27 @@ def main() -> int:
             continue
         acc_of[sp].append((base(r["accession"]), sub[base(r["accession"])], r["id"]))
 
+    by_family = collections.defaultdict(list)
+    for i, t in tax.items():
+        if t["species"]:
+            by_family[t["family"]].append(i)
+    reshort = {}
+
     def other(rid, sp):
         t = tax[rid]
         if t["species_status"] == "shared" or (t["species"] and t["species"] != sp):
             return 0, rid
         m = marg.get(rid)
-        if m and m["margin_whole"] not in ("", "NA"):
-            return int(m["margin_whole"]), m["nearest_whole"]
-        return None, ""
+        if not m or m["margin_whole"] in ("", "NA"):
+            return None, ""
+        near = m["nearest_whole"]
+        if near not in seqs or len(seqs[near]) >= a.min_span * len(seqs[rid]):
+            return int(m["margin_whole"]), near
+        if rid not in reshort:
+            pool = [j for j in by_family[t["family"]] if tax[j]["species"] != sp
+                    and len(seqs[j]) >= a.min_span * len(seqs[rid])]
+            reshort[rid] = min(((span_distance(seqs[rid], seqs[j]), j) for j in pool), default=(None, ""))
+        return reshort[rid]
 
     jobs, single = [], 0
     for sp, xs in acc_of.items():
@@ -180,7 +200,8 @@ def main() -> int:
     for *_, row in sorted(out, key=lambda x: x[:2]):
         w.writerow(row)
     print(f"species checked: {sum(1 for xs in acc_of.values() if len({x[1] for x in xs}) > 1)}; "
-          f"with one submission only (not checkable): {single}; jobs {len(jobs)}", file=sys.stderr)
+          f"with one submission only (not checkable): {single}; jobs {len(jobs)}; "
+          f"other re-measured past a short partial: {len(reshort)}", file=sys.stderr)
     return 0
 
 
